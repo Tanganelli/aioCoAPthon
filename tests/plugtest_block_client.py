@@ -42,8 +42,11 @@ class PlugtestBlockClientClass(unittest.TestCase):
         server.add_resource('large-create/', LargeCreateResource())
 
         loop = asyncio.get_event_loop()
+        loop.set_exception_handler(self.handle_exception)
         loop.create_task(server.create_server())
+
         client = CoAPClient("127.0.0.1", 5683)
+
         return client, server
 
     @staticmethod
@@ -54,6 +57,14 @@ class PlugtestBlockClientClass(unittest.TestCase):
                  asyncio.current_task()]
 
         [task.cancel() for task in tasks]
+        await asyncio.gather(*tasks, return_exceptions=True)
+
+    @staticmethod
+    def handle_exception(loop, context):
+        # context["message"] will always be there; but context["exception"] may not
+        msg = context.get("exception", context["message"])
+        logging.error(f"Caught exception: {msg}")
+        logging.error(repr(context))
 
     def main(self):
         unittest.main()

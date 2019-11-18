@@ -652,7 +652,7 @@ async def shutdown(loop, sig, server):
     logging.info(f"Received exit signal {sig.name}...")
     logging.info("Closing server")
     server.stop()
-    tasks = [t for t in asyncio.Task.all_tasks() if t is not
+    tasks = [t for t in asyncio.all_tasks() if t is not
              asyncio.Task.current_task()]
 
     [task.cancel() for task in tasks]
