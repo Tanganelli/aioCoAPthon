@@ -93,62 +93,70 @@ class CoAPServer(CoAPProtocol):
                 break
             except Exception as e:
                 logger.exception(e)
+                break
 
     async def _notify_all(self):
+
         while not self._stop.is_set():
-            observers = await self._observeLayer.notify_all()
-            min_pmin = defines.MINIMUM_OBSERVE_INTERVAL
-            for transaction in observers:
-                try:
-                    logger.debug("Notify All")
-                    if transaction.resource.max_age is None and transaction.response.max_age is None:
-                        max_age = 60
-                    elif transaction.response.max_age is not None:
-                        max_age = transaction.response.max_age
-                    else:
-                        max_age = transaction.resource.max_age
-                    notify_in = transaction.response.timestamp + max_age - time.time() - defines.OBSERVING_JITTER
-                    if notify_in <= 0:
-                        if transaction.response.type == defines.Type.NON or transaction.response.acknowledged:
-                            transaction.response = None
-                            transaction = await self._blockLayer.receive_request(transaction)
-                            transaction = await self._observeLayer.receive_request(transaction)
-                            transaction = await self._requestLayer.receive_request(transaction)
-                            transaction = await self._observeLayer.send_response(transaction)
-                            transaction = await self._blockLayer.send_response(transaction)
-                            transaction = await self._messageLayer.send_response(transaction)
-                            if transaction.response is not None:
-                                if transaction.resource.max_age is None and transaction.response.max_age is None:
-                                    notify_in = 60
-                                elif transaction.response.max_age is not None:
-                                    notify_in = transaction.response.max_age
-                                else:
-                                    notify_in = transaction.resource.max_age
-                                if transaction.response.type == defines.Type.CON:
-                                    future_time = random.uniform(defines.ACK_TIMEOUT,
-                                                                 (defines.ACK_TIMEOUT * defines.ACK_RANDOM_FACTOR))
-                                    transaction.retransmit_task = self._loop.create_task(
-                                        self._retransmit(transaction, transaction.response, future_time, 0))
+            try:
+                observers = await self._observeLayer.notify_all()
+                min_pmin = defines.MINIMUM_OBSERVE_INTERVAL
+                for transaction in observers:
+                    try:
+                        logger.debug("Notify All")
+                        if transaction.resource.max_age is None and transaction.response.max_age is None:
+                            max_age = 60
+                        elif transaction.response.max_age is not None:
+                            max_age = transaction.response.max_age
+                        else:
+                            max_age = transaction.resource.max_age
+                        notify_in = transaction.response.timestamp + max_age - time.time() - defines.OBSERVING_JITTER
+                        if notify_in <= 0:
+                            if transaction.response.type == defines.Type.NON or transaction.response.acknowledged:
+                                transaction.response = None
+                                transaction = await self._blockLayer.receive_request(transaction)
+                                transaction = await self._observeLayer.receive_request(transaction)
+                                transaction = await self._requestLayer.receive_request(transaction)
+                                transaction = await self._observeLayer.send_response(transaction)
+                                transaction = await self._blockLayer.send_response(transaction)
+                                transaction = await self._messageLayer.send_response(transaction)
+                                if transaction.response is not None:
+                                    if transaction.resource.max_age is None and transaction.response.max_age is None:
+                                        notify_in = 60
+                                    elif transaction.response.max_age is not None:
+                                        notify_in = transaction.response.max_age
+                                    else:
+                                        notify_in = transaction.resource.max_age
+                                    if transaction.response.type == defines.Type.CON:
+                                        future_time = random.uniform(defines.ACK_TIMEOUT,
+                                                                     (defines.ACK_TIMEOUT * defines.ACK_RANDOM_FACTOR))
+                                        transaction.retransmit_task = self._loop.create_task(
+                                            self._retransmit(transaction, transaction.response, future_time, 0))
 
-                                self._loop.create_task(self._send_datagram(transaction.response))
-                        elif not transaction.response.acknowledged:
-                            transaction.notification_not_acknowledged += 1
-                            logger.debug("Notification for {0} on resource {1} has not been acknowledged".format(
-                                transaction.response.destination, transaction.resource.path))
-                            notify_in = max_age
-                            if transaction.notification_not_acknowledged > defines.MAX_LOST_NOTIFICATION:
-                                await self._observeLayer.remove_subscriber(transaction.response)
+                                    self._loop.create_task(self._send_datagram(transaction.response))
+                            elif not transaction.response.acknowledged:
+                                transaction.notification_not_acknowledged += 1
+                                logger.debug("Notification for {0} on resource {1} has not been acknowledged".format(
+                                    transaction.response.destination, transaction.resource.path))
+                                notify_in = max_age
+                                if transaction.notification_not_acknowledged > defines.MAX_LOST_NOTIFICATION:
+                                    await self._observeLayer.remove_subscriber(transaction.response)
 
-                    if notify_in < min_pmin:
-                        min_pmin = notify_in
-                except errors.ObserveError as e:
-                    if e.transaction is not None:
-                        e.transaction.separate_task.cancel()
-                        e.transaction.response.payload = e.msg
-                        e.transaction.response.clear_options()
-                        e.transaction.response.type = defines.Type.CON
-                        e.transaction.response.code = e.response_code
-                        e.transaction = await self._messageLayer.send_response(e.transaction)
-                        self._loop.create_task(self._send_datagram(e.transaction.response))
+                        if notify_in < min_pmin:
+                            min_pmin = notify_in
+                    except errors.ObserveError as e:
+                        if e.transaction is not None:
+                            e.transaction.separate_task.cancel()
+                            e.transaction.response.payload = e.msg
+                            e.transaction.response.clear_options()
+                            e.transaction.response.type = defines.Type.CON
+                            e.transaction.response.code = e.response_code
+                            e.transaction = await self._messageLayer.send_response(e.transaction)
+                            self._loop.create_task(self._send_datagram(e.transaction.response))
 
-            await asyncio.sleep(min_pmin)
+                await asyncio.sleep(min_pmin)
+            except asyncio.CancelledError or RuntimeError:
+                break
+            except Exception as e:
+                logger.exception(e)
+                break
