@@ -185,7 +185,7 @@ class TestResource(Resource):
             self.payload = request.payload
             self.content_type = request.content_type
             return self, response
-        
+
 
 class ComposedResource(Resource):
     def __init__(self, name="composed"):

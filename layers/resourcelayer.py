@@ -78,7 +78,6 @@ class ResourceLayer(object):
                     and isinstance(ret[0], Resource):
                 resource_rep, response = ret
 
-
             elif isinstance(ret, Callable):
                 if not transaction.request.acknowledged:
                     transaction.send_separate.set()
@@ -88,7 +87,7 @@ class ResourceLayer(object):
                 ret = await cls.call_method(callback, request=transaction.request, response=transaction.response)
                 resource_rep, response = ret
 
-            else:
+            else:  # pragma: no cover
                 raise errors.InternalError("Resource handler is not correctly implemented",
                                            defines.Code.INTERNAL_SERVER_ERROR, transaction=transaction,
                                            related=defines.MessageRelated.REQUEST)
@@ -108,9 +107,6 @@ class ResourceLayer(object):
                     transaction.response.payload = None
                 else:
                     transaction.response.code = defines.Code.CONTENT
-
-            if transaction.resource.max_age is not None:
-                transaction.response.max_age = transaction.resource.max_age
 
             return transaction
 
@@ -155,7 +151,7 @@ class ResourceLayer(object):
                 callback = ret
                 ret = await cls.call_method(callback, request=transaction.request, response=transaction.response)
                 resource_rep, response = ret
-            else:
+            else:  # pragma: no cover
                 raise errors.InternalError("Resource handler is not correctly implemented",
                                            defines.Code.INTERNAL_SERVER_ERROR, transaction=transaction)
 
@@ -165,11 +161,6 @@ class ResourceLayer(object):
 
             if transaction.response.code is None or transaction.response.code == defines.Code.EMPTY:
                 transaction.response.code = defines.Code.CHANGED
-
-            # if transaction.resource.etag is not None:
-            #     transaction.response.etag = transaction.resource.etag
-            if transaction.resource.max_age is not None:
-                transaction.response.max_age = transaction.resource.max_age
 
         except NotImplementedError:  # pragma: no cover
             transaction.response.code = defines.Code.METHOD_NOT_ALLOWED
@@ -212,7 +203,7 @@ class ResourceLayer(object):
                 callback = ret
                 ret = await cls.call_method(callback, request=transaction.request, response=transaction.response)
                 resource_rep, response = ret
-            else:
+            else:  # pragma: no cover
                 raise errors.InternalError("Resource handler is not correctly implemented",
                                            defines.Code.INTERNAL_SERVER_ERROR, transaction=transaction)
 
@@ -222,11 +213,6 @@ class ResourceLayer(object):
 
             if transaction.response.code is None or transaction.response.code == defines.Code.EMPTY:
                 transaction.response.code = defines.Code.CHANGED
-
-            if transaction.resource.etag is not None:
-                transaction.response.etag = transaction.resource.etag
-            if transaction.resource.max_age is not None:
-                transaction.response.max_age = transaction.resource.max_age
 
         except NotImplementedError:  # pragma: no cover
             transaction.response.code = defines.Code.METHOD_NOT_ALLOWED
@@ -272,7 +258,7 @@ class ResourceLayer(object):
                 callback = ret
                 ret = await cls.call_method(callback, request=transaction.request, response=transaction.response)
                 deleted, response = ret
-            else:
+            else:  # pragma: no cover
                 raise errors.InternalError("Resource handler is not correctly implemented",
                                            defines.Code.INTERNAL_SERVER_ERROR, transaction=transaction)
 
