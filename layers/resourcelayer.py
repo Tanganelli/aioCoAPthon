@@ -65,7 +65,7 @@ class ResourceLayer(object):
         transaction.resource = resource
         # If-Match
         if transaction.request.if_match:
-            if None not in transaction.request.if_match and transaction.resource.etag \
+            if "".encode("utf-8") not in transaction.request.if_match and transaction.resource.etag \
                     not in transaction.request.if_match:
                 transaction.response.code = defines.Code.PRECONDITION_FAILED
                 return transaction
@@ -131,7 +131,7 @@ class ResourceLayer(object):
         """
         # If-Match
         if transaction.request.if_match:
-            if None not in transaction.request.if_match and resource.etag \
+            if "".encode("utf-8") not in transaction.request.if_match and resource.etag \
                     not in transaction.request.if_match:
                 transaction.response.code = defines.Code.PRECONDITION_FAILED
                 return transaction
@@ -183,7 +183,7 @@ class ResourceLayer(object):
         """
         # If-Match
         if transaction.request.if_match:
-            if None not in transaction.request.if_match and resource.etag \
+            if "".encode("utf-8") not in transaction.request.if_match and resource.etag \
                     not in transaction.request.if_match:
                 transaction.response.code = defines.Code.PRECONDITION_FAILED
                 return transaction
@@ -238,7 +238,7 @@ class ResourceLayer(object):
         transaction.resource = resource
         # If-Match
         if transaction.request.if_match:
-            if None not in transaction.request.if_match and transaction.resource.etag \
+            if "".encode("utf-8") not in transaction.request.if_match and transaction.resource.etag \
                     not in transaction.request.if_match:
                 transaction.response.code = defines.Code.PRECONDITION_FAILED
                 return transaction

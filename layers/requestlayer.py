@@ -210,33 +210,8 @@ class RequestLayer(object):
 
             if transaction.resource is not None and resource.__repr__() != transaction.resource.__repr__():
                 # new resource created by the method
-                try:
-                    resource = self._root[transaction.resource.path]
-                    # If-None-Match
-                    if transaction.request.if_none_match:
-                        transaction.response.code = defines.Code.PRECONDITION_FAILED
-                        transaction.resource = None
-                        transaction.response.clear_options()
-                        transaction.response.payload = None
-                        return transaction
-                    self._root[transaction.resource.path] = transaction.resource
-                except KeyError:
-                    # If-Match empty string
-                    if transaction.request.if_match:
-                        if "".encode("utf-8") in transaction.request.if_match:
-                            transaction.response.code = defines.Code.PRECONDITION_FAILED
-                            transaction.resource = None
-                            transaction.response.clear_options()
-                            transaction.response.payload = None
-                            return transaction
-
-                    self._root[transaction.resource.path] = transaction.resource
-                    transaction.response.code = defines.Code.CREATED
-
-                except AttributeError:
-                    transaction.response.code = defines.Code.BAD_REQUEST
-                    transaction.response.clear_options()
-                    transaction.response.payload = "A resource should be specified."
+                self._root[transaction.resource.path] = transaction.resource
+                transaction.response.code = defines.Code.CREATED
 
         return transaction
 
