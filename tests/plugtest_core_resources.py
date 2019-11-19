@@ -135,7 +135,7 @@ class LocationQueryResource(Resource):
         if request.content_type is not None:
             resource.content_type = request.content_type
         response.location_path = resource.path
-        resource.location_query = "?first=1&second=2"
+        response.location_query = "?first=1&second=2"
         return resource, response
 
 
