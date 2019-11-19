@@ -153,7 +153,7 @@ class RequestLayer(object):
         except KeyError:
             # If-Match empty string
             if transaction.request.if_match:
-                if None in transaction.request.if_match:
+                if "".encode("utf-8") in transaction.request.if_match:
                     transaction.response.code = defines.Code.PRECONDITION_FAILED
                     return transaction
 
@@ -223,7 +223,7 @@ class RequestLayer(object):
                 except KeyError:
                     # If-Match empty string
                     if transaction.request.if_match:
-                        if None in transaction.request.if_match:
+                        if "".encode("utf-8") in transaction.request.if_match:
                             transaction.response.code = defines.Code.PRECONDITION_FAILED
                             transaction.resource = None
                             transaction.response.clear_options()

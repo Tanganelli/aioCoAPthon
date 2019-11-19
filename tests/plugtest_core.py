@@ -1153,3 +1153,90 @@ class PlugtestCoreClass(unittest.TestCase):
         self.assertEqual(ret, expected)
         self.stop_client_server(client, server)
 
+    @async_test
+    async def test_td_coap_core_32(self):
+        client, server = await self.start_client_server()
+        print("TD_COAP_CORE_32")
+        path = "/storage/create1"
+
+        # STEP 2
+        req = Request()
+        req.code = defines.Code.PUT
+        req.uri_path = path
+        req.type = defines.Type.CON
+        req.mid = random.randint(1, 1000)
+        req.destination = self.server_address
+        req.payload = "New Resource"
+        req.if_match = "".encode("utf-8")
+
+        # STEP 3
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.mid = req.mid
+        expected.code = defines.Code.PRECONDITION_FAILED
+        expected.source = self.server_address
+        expected.payload = None
+
+        transaction = await client.send_request(req)
+        ret = await client.receive_response(transaction, 10)
+
+        if ret != expected:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+            self.assertEqual(ret, expected)
+
+        # STEP 2
+        req = Request()
+        req.code = defines.Code.PUT
+        req.uri_path = path
+        req.type = defines.Type.CON
+        req.mid = random.randint(1, 1000)
+        req.destination = self.server_address
+        req.payload = "New Resource"
+        req.if_none_match = True
+
+        # STEP 3
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.mid = req.mid
+        expected.code = defines.Code.CREATED
+        expected.payload = None
+        expected.source = self.server_address
+
+        transaction = await client.send_request(req)
+        ret = await client.receive_response(transaction, 10)
+
+        if ret != expected:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+            self.assertEqual(ret, expected)
+
+        # STEP 2
+        req = Request()
+        req.code = defines.Code.POST
+        req.uri_path = path
+        req.type = defines.Type.CON
+        req.mid = random.randint(1, 1000)
+        req.destination = self.server_address
+        req.payload = "New Resource"
+        req.if_match = "".encode("utf-8")
+
+        # STEP 3
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.mid = req.mid
+        expected.code = defines.Code.PRECONDITION_FAILED
+        expected.source = self.server_address
+        expected.payload = None
+
+        transaction = await client.send_request(req)
+        ret = await client.receive_response(transaction, 10)
+
+        if ret == expected:
+            print("PASS")
+        else:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+
+        self.assertEqual(ret, expected)
+        self.stop_client_server(client, server)
