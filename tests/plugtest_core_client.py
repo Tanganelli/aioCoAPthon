@@ -53,7 +53,7 @@ class PlugtestCoreClientClass(unittest.TestCase):
         return client, server
 
     @staticmethod
-    def stop_client_server(client, server):
+    async def stop_client_server(client, server):
         server.stop()
         client.stop()
         tasks = [t for t in asyncio.all_tasks() if t is not
@@ -98,7 +98,7 @@ class PlugtestCoreClientClass(unittest.TestCase):
 
         self.assertEqual(ret, expected)
 
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_core_02(self):
@@ -124,7 +124,7 @@ class PlugtestCoreClientClass(unittest.TestCase):
 
         self.assertEqual(ret, expected)
 
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_core_03(self):
@@ -151,7 +151,7 @@ class PlugtestCoreClientClass(unittest.TestCase):
 
         self.assertEqual(ret, expected)
 
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_core_04(self):
@@ -177,7 +177,7 @@ class PlugtestCoreClientClass(unittest.TestCase):
             print("Expected: {0}".format(expected))
 
         self.assertEqual(ret, expected)
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_core_05(self):
@@ -205,7 +205,7 @@ class PlugtestCoreClientClass(unittest.TestCase):
             print("Expected: {0}".format(expected))
 
         self.assertEqual(ret, expected)
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_core_06(self):
@@ -230,7 +230,7 @@ class PlugtestCoreClientClass(unittest.TestCase):
             print("Expected: {0}".format(expected))
 
         self.assertEqual(ret, expected)
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_core_07(self):
@@ -255,7 +255,7 @@ class PlugtestCoreClientClass(unittest.TestCase):
             print("Expected: {0}".format(expected))
 
         self.assertEqual(ret, expected)
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_core_08(self):
@@ -280,7 +280,7 @@ class PlugtestCoreClientClass(unittest.TestCase):
             print("Expected: {0}".format(expected))
 
         self.assertEqual(ret, expected)
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_core_09(self):
@@ -308,7 +308,7 @@ class PlugtestCoreClientClass(unittest.TestCase):
 
         self.assertEqual(ret, expected)
 
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_core_13(self):
@@ -335,7 +335,7 @@ class PlugtestCoreClientClass(unittest.TestCase):
             print("Expected: {0}".format(expected))
 
         self.assertEqual(ret, expected)
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_core_14(self):
@@ -362,7 +362,7 @@ class PlugtestCoreClientClass(unittest.TestCase):
             print("Expected: {0}".format(expected))
 
         self.assertEqual(ret, expected)
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_core_18(self):
@@ -388,7 +388,7 @@ class PlugtestCoreClientClass(unittest.TestCase):
             print("Expected: {0}".format(expected))
 
         self.assertEqual(ret, expected)
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_core_19(self):
@@ -415,7 +415,7 @@ class PlugtestCoreClientClass(unittest.TestCase):
             print("Expected: {0}".format(expected))
 
         self.assertEqual(ret, expected)
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_core_20(self):
@@ -459,7 +459,7 @@ class PlugtestCoreClientClass(unittest.TestCase):
             print("Expected: {0}".format(expected))
 
         self.assertEqual(ret, expected)
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_core_21(self):
@@ -525,7 +525,7 @@ class PlugtestCoreClientClass(unittest.TestCase):
             print("Expected: {0}".format(expected))
 
         self.assertEqual(ret, expected)
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_core_22(self):
@@ -621,7 +621,7 @@ class PlugtestCoreClientClass(unittest.TestCase):
             print("Expected: {0}".format(expected))
 
         self.assertEqual(ret, expected)
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_core_23(self):
@@ -665,5 +665,5 @@ class PlugtestCoreClientClass(unittest.TestCase):
             print("Expected: {0}".format(expected))
 
         self.assertEqual(ret, expected)
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 

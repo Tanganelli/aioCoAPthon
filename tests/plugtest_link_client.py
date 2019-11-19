@@ -60,7 +60,7 @@ class PlugtestLinkClientClass(unittest.TestCase):
         return client, server
 
     @staticmethod
-    def stop_client_server(client, server):
+    async def stop_client_server(client, server):
         server.stop()
         client.stop()
         tasks = [t for t in asyncio.all_tasks() if t is not
@@ -109,7 +109,7 @@ class PlugtestLinkClientClass(unittest.TestCase):
 
         self.assertEqual(ret, expected)
 
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_link_02(self):
@@ -138,7 +138,7 @@ class PlugtestLinkClientClass(unittest.TestCase):
 
         self.assertEqual(ret, expected)
 
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_link_03(self):
@@ -169,7 +169,7 @@ class PlugtestLinkClientClass(unittest.TestCase):
 
         self.assertEqual(ret, expected)
 
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_link_04(self):
@@ -198,7 +198,7 @@ class PlugtestLinkClientClass(unittest.TestCase):
 
         self.assertEqual(ret, expected)
 
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_link_05(self):
@@ -226,7 +226,7 @@ class PlugtestLinkClientClass(unittest.TestCase):
 
         self.assertEqual(ret, expected)
 
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_link_06(self):
@@ -254,7 +254,7 @@ class PlugtestLinkClientClass(unittest.TestCase):
 
         self.assertEqual(ret, expected)
 
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_link_07(self):
@@ -282,7 +282,7 @@ class PlugtestLinkClientClass(unittest.TestCase):
 
         self.assertEqual(ret, expected)
 
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_link_08(self):
@@ -310,4 +310,4 @@ class PlugtestLinkClientClass(unittest.TestCase):
 
         self.assertEqual(ret, expected)
 
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)

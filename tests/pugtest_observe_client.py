@@ -47,7 +47,7 @@ class PlugtestObserveClientClass(unittest.TestCase):
         return client, server
 
     @staticmethod
-    def stop_client_server(client, server):
+    async def stop_client_server(client, server):
         server.stop()
         client.stop()
         tasks = [t for t in asyncio.all_tasks() if t is not
@@ -123,7 +123,7 @@ class PlugtestObserveClientClass(unittest.TestCase):
 
         print("PASS")
 
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_obs_02(self):
@@ -168,4 +168,4 @@ class PlugtestObserveClientClass(unittest.TestCase):
 
         print("PASS")
 
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)

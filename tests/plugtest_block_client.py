@@ -50,7 +50,7 @@ class PlugtestBlockClientClass(unittest.TestCase):
         return client, server
 
     @staticmethod
-    def stop_client_server(client, server):
+    async def stop_client_server(client, server):
         server.stop()
         client.stop()
         tasks = [t for t in asyncio.all_tasks() if t is not
@@ -123,7 +123,7 @@ class PlugtestBlockClientClass(unittest.TestCase):
 
         self.assertEqual(ret, expected)
 
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_block_02(self):
@@ -179,7 +179,7 @@ class PlugtestBlockClientClass(unittest.TestCase):
 
         self.assertEqual(ret, expected)
 
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_block_03(self):
@@ -277,7 +277,7 @@ class PlugtestBlockClientClass(unittest.TestCase):
 
         self.assertEqual(ret, expected)
 
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_block_03b(self):
@@ -375,7 +375,7 @@ class PlugtestBlockClientClass(unittest.TestCase):
 
         self.assertEqual(ret, expected)
 
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_block_04(self):
@@ -474,7 +474,7 @@ class PlugtestBlockClientClass(unittest.TestCase):
 
         self.assertEqual(ret, expected)
 
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
 
     @async_test
     async def test_td_coap_block_04b(self):
@@ -573,4 +573,4 @@ class PlugtestBlockClientClass(unittest.TestCase):
 
         self.assertEqual(ret, expected)
 
-        self.stop_client_server(client, server)
+        await self.stop_client_server(client, server)
