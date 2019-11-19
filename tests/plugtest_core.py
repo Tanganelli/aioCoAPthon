@@ -376,6 +376,129 @@ class PlugtestCoreClass(unittest.TestCase):
 
         ret = await client.receive_response(transaction, 10)
 
+        if ret != expected:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+
+        self.assertEqual(ret, expected)
+
+        req = Request()
+        req.code = defines.Code.POST
+        req.uri_path = path
+        req.type = defines.Type.CON
+        req.mid = random.randint(1, 1000)
+        req.destination = self.server_address
+        req.token = utils.generate_random_hex(2)
+        req.payload = "POST"
+
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.mid = req.mid
+        expected.code = defines.Code.EMPTY
+        expected.source = "127.0.0.1", 5683
+
+        transaction = await client.send_request(req)
+        ret = await client.receive_response(transaction, 10)
+
+        if ret != expected:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+
+        self.assertEqual(ret, expected)
+        transaction.response = None
+
+        expected = Response()
+        expected.type = defines.Type.CON
+        expected.mid = self.server_mid + 4
+        expected.code = defines.Code.CHANGED
+        expected.token = req.token
+        expected.source = "127.0.0.1", 5683
+        expected.payload = "Resource changed through POST"
+
+        ret = await client.receive_response(transaction, 10)
+
+        if ret != expected:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+
+        self.assertEqual(ret, expected)
+
+        req = Request()
+        req.code = defines.Code.PUT
+        req.uri_path = path
+        req.type = defines.Type.CON
+        req.mid = random.randint(1, 1000)
+        req.destination = self.server_address
+        req.token = utils.generate_random_hex(2)
+        req.payload = "PUT"
+
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.mid = req.mid
+        expected.code = defines.Code.EMPTY
+        expected.source = "127.0.0.1", 5683
+
+        transaction = await client.send_request(req)
+        ret = await client.receive_response(transaction, 10)
+
+        if ret != expected:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+
+        self.assertEqual(ret, expected)
+        transaction.response = None
+
+        expected = Response()
+        expected.type = defines.Type.CON
+        expected.mid = self.server_mid + 7
+        expected.code = defines.Code.CHANGED
+        expected.token = req.token
+        expected.source = "127.0.0.1", 5683
+        expected.payload = "Resource changed through PUT"
+
+        ret = await client.receive_response(transaction, 10)
+
+        if ret != expected:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+
+        self.assertEqual(ret, expected)
+
+        req = Request()
+        req.code = defines.Code.DELETE
+        req.uri_path = path
+        req.type = defines.Type.CON
+        req.mid = random.randint(1, 1000)
+        req.destination = self.server_address
+        req.token = utils.generate_random_hex(2)
+        req.payload = "DELETE"
+
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.mid = req.mid
+        expected.code = defines.Code.EMPTY
+        expected.source = "127.0.0.1", 5683
+
+        transaction = await client.send_request(req)
+        ret = await client.receive_response(transaction, 10)
+
+        if ret != expected:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+
+        self.assertEqual(ret, expected)
+        transaction.response = None
+
+        expected = Response()
+        expected.type = defines.Type.CON
+        expected.mid = self.server_mid + 10
+        expected.code = defines.Code.DELETED
+        expected.token = req.token
+        expected.source = "127.0.0.1", 5683
+        expected.payload = "Resource deleted"
+
+        ret = await client.receive_response(transaction, 10)
+
         if ret == expected:
             print("PASS")
         else:

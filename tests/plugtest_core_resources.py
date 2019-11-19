@@ -57,6 +57,35 @@ class SeparateResource(Resource):
         response.content_type = self.content_type
         return self, response
 
+    def handle_post(self, request: "Request", response: "Response"):
+        return self.post_callback
+
+    def handle_put(self, request: "Request", response: "Response"):
+        return self.put_callback
+
+    def handle_delete(self, request: "Request", response: "Response"):
+        return self.delete_callback
+
+    def post_callback(self, request: "Request", response: "Response"):
+        import time
+        time.sleep(1)
+        self.payload = request.payload
+        response.payload = "Resource changed through POST"
+        return self, response
+
+    def put_callback(self, request: "Request", response: "Response"):
+        import time
+        time.sleep(1)
+        self.payload = request.payload
+        response.payload = "Resource changed through PUT"
+        return self, response
+
+    def delete_callback(self, request: "Request", response: "Response"):
+        import time
+        time.sleep(1)
+        response.payload = "Resource deleted"
+        return True, response
+
 
 class ComposedResource(Resource):
     def __init__(self, name="composed"):
