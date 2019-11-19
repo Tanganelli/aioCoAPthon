@@ -51,7 +51,7 @@ class ObserveLayer(object):
             # Observe request
             try:
                 host, port = request.destination
-            except AttributeError as e:
+            except AttributeError as e:  # pragma: no cover
                 raise errors.InternalError("Request destination cannot be computed",
                                            defines.Code.INTERNAL_SERVER_ERROR, e)
 
@@ -72,7 +72,7 @@ class ObserveLayer(object):
         """
         try:
             host, port = transaction.response.source
-        except AttributeError as e:
+        except AttributeError as e:  # pragma: no cover
             raise errors.InternalError("Message source cannot be computed",
                                        defines.Code.INTERNAL_SERVER_ERROR, e, transaction=transaction)
         key_token = utils.str_append_hash(host, port, transaction.response.token)
@@ -92,7 +92,7 @@ class ObserveLayer(object):
 
         try:
             host, port = message.destination
-        except AttributeError as e:
+        except AttributeError as e:  # pragma: no cover
             raise errors.InternalError("Message destination cannot be computed",
                                        defines.Code.INTERNAL_SERVER_ERROR, e)
         key_token = utils.str_append_hash(host, port, message.token)
@@ -115,7 +115,7 @@ class ObserveLayer(object):
             # Observe request
             try:
                 host, port = transaction.request.source
-            except AttributeError as e:
+            except AttributeError as e:  # pragma: no cover
                 raise errors.InternalError("Request Source cannot be computed",
                                            defines.Code.INTERNAL_SERVER_ERROR, e, transaction=transaction)
 
@@ -133,7 +133,7 @@ class ObserveLayer(object):
                 logger.info("Remove Subscriber")
                 try:
                     del self._relations[key_token]
-                except KeyError:
+                except KeyError:  # pragma: no cover
                     logger.exception("Subscriber was not registered")
 
         return transaction
@@ -152,7 +152,7 @@ class ObserveLayer(object):
         if empty.type == defines.Type.RST:
             try:
                 host, port = transaction.request.source
-            except AttributeError as e:
+            except AttributeError as e:  # pragma: no cover
                 raise errors.InternalError("Request Source cannot be computed",
                                            defines.Code.INTERNAL_SERVER_ERROR, e, transaction=transaction)
 
@@ -160,7 +160,7 @@ class ObserveLayer(object):
             logger.info("Remove Subscriber")
             try:
                 del self._relations[key_token]
-            except KeyError:
+            except KeyError:  # pragma: no cover
                 logger.exception("Subscriber was not registered")
             transaction.completed = True
         return transaction
@@ -175,7 +175,7 @@ class ObserveLayer(object):
         """
         try:
             host, port = transaction.request.source
-        except AttributeError as e:
+        except AttributeError as e:  # pragma: no cover
             raise errors.InternalError("Request source cannot be computed",
                                        defines.Code.INTERNAL_SERVER_ERROR, e, transaction=transaction)
 
@@ -258,12 +258,12 @@ class ObserveLayer(object):
         logger.debug("Remove Subcriber")
         try:
             host, port = message.destination
-        except AttributeError as e:
+        except AttributeError as e:  # pragma: no cover
             raise errors.InternalError("Message destination cannot be computed",
                                        defines.Code.INTERNAL_SERVER_ERROR, e)
         key_token = utils.str_append_hash(host, port, message.token)
         try:
             self._relations[key_token].transaction.completed = True
             del self._relations[key_token]
-        except KeyError:
+        except KeyError:  # pragma: no cover
             logger.exception("Subscriber was not registered")

@@ -42,37 +42,37 @@ class RequestLayer(object):
             resource.path = path
             self._root[path] = resource
             return True
-        return False
+        return False  # pragma: no cover
 
-    def remove_resource(self, path):
-        """
-        Helper function to remove resources.
-
-        :param path: the path for the unwanted resource
-        :rtype : the removed object
-        """
-
-        path = path.strip("/")
-        path = "/" + path
-        try:
-            res = self._root[path]
-        except KeyError:
-            return False
-        if res is not None:
-            del self._root[path]
-        return True
-
-    def get_resources(self, prefix=None):
-        lst = self._root.dump()
-        if prefix is None:
-            return lst
-        else:
-            ret = []
-            for uri in lst:
-                assert isinstance(uri, str)
-                if uri.startswith(prefix):
-                    ret.append(uri)
-            return ret
+    # def remove_resource(self, path):
+    #     """
+    #     Helper function to remove resources.
+    #
+    #     :param path: the path for the unwanted resource
+    #     :rtype : the removed object
+    #     """
+    #
+    #     path = path.strip("/")
+    #     path = "/" + path
+    #     try:
+    #         res = self._root[path]
+    #     except KeyError:
+    #         return False
+    #     if res is not None:
+    #         del self._root[path]
+    #     return True
+    #
+    # def get_resources(self, prefix=None):
+    #     lst = self._root.dump()
+    #     if prefix is None:
+    #         return lst
+    #     else:
+    #         ret = []
+    #         for uri in lst:
+    #             assert isinstance(uri, str)
+    #             if uri.startswith(prefix):
+    #                 ret.append(uri)
+    #         return ret
 
     async def receive_request(self, transaction: Transaction) -> Transaction:
         """
