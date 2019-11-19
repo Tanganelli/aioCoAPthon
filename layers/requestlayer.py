@@ -216,7 +216,7 @@ class RequestLayer(object):
             # post
             transaction = await self._resourceLayer.post_resource(transaction, resource)
 
-            if resource.__repr__() != transaction.resource.__repr__():
+            if transaction.resource is not None and resource.__repr__() != transaction.resource.__repr__():
                 # new resource created by the method
                 try:
                     resource = self._root[transaction.resource.path]

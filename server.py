@@ -269,6 +269,17 @@ class ValidateResource(Resource):
         self.etag = self.__etag.to_bytes(length=1, byteorder="big")
         return self, response
 
+    async def handle_post(self, request: "Request", response: "Response"):
+        self.payload = request.payload
+        self.__etag += 1
+        self.etag = self.__etag.to_bytes(length=1, byteorder="big")
+        return self, response
+
+    async def handle_delete(self, request: "Request", response: "Response"):
+        self.payload = request.payload
+        self.__etag += 1
+        return True, response
+
 
 class StorageResource(Resource):
     def __init__(self, name="StorageResource"):
