@@ -77,13 +77,7 @@ class ResourceLayer(object):
             if isinstance(ret, tuple) and len(ret) == 2 and isinstance(ret[1], Response) \
                     and isinstance(ret[0], Resource):
                 resource_rep, response = ret
-                # Accept
-                if transaction.request.accept is not None and response.content_type is not None \
-                        and transaction.request.accept != response.content_type:
-                    transaction.response.code = defines.Code.NOT_ACCEPTABLE
-                    transaction.response.clear_options()
-                    transaction.response.payload = "Request representation is not acceptable."
-                    return transaction
+
 
             elif isinstance(ret, Callable):
                 if not transaction.request.acknowledged:
@@ -94,17 +88,18 @@ class ResourceLayer(object):
                 ret = await cls.call_method(callback, request=transaction.request, response=transaction.response)
                 resource_rep, response = ret
 
-                # Accept
-                if transaction.request.accept is not None and response.content_type is not None \
-                        and transaction.request.accept != response.content_type:
-                    transaction.response.code = defines.Code.NOT_ACCEPTABLE
-                    transaction.response.clear_options()
-                    transaction.response.payload = "Request representation is not acceptable."
-                    return transaction
             else:
                 raise errors.InternalError("Resource handler is not correctly implemented",
                                            defines.Code.INTERNAL_SERVER_ERROR, transaction=transaction,
                                            related=defines.MessageRelated.REQUEST)
+
+            # Accept
+            if transaction.request.accept is not None and response.content_type is not None \
+                    and transaction.request.accept != response.content_type:
+                transaction.response.code = defines.Code.NOT_ACCEPTABLE
+                transaction.response.clear_options()
+                transaction.response.payload = "Request representation is not acceptable."
+                return transaction
 
             transaction.resource, transaction.response = resource_rep, response
             if transaction.response.code is None or transaction.response.code == defines.Code.EMPTY:
@@ -113,22 +108,18 @@ class ResourceLayer(object):
                     transaction.response.payload = None
                 else:
                     transaction.response.code = defines.Code.CONTENT
-                    if transaction.response.payload is None:
-                        transaction.response.payload = resource.payload
 
-            if transaction.resource.etag is not None and transaction.response.etag is None:
-                transaction.response.etag = transaction.resource.etag
             if transaction.resource.max_age is not None:
                 transaction.response.max_age = transaction.resource.max_age
 
             return transaction
 
-        except NotImplementedError:
+        except NotImplementedError:  # pragma: no cover
             transaction.response.code = defines.Code.METHOD_NOT_ALLOWED
             transaction.response.clear_options()
             transaction.response.payload = "GET method is not allowed."
             return transaction
-        except:
+        except Exception:  # pragma: no cover
             raise errors.InternalError("Resource handler is not correctly implemented",
                                        defines.Code.INTERNAL_SERVER_ERROR, transaction=transaction,
                                        related=defines.MessageRelated.REQUEST)
@@ -180,11 +171,11 @@ class ResourceLayer(object):
             if transaction.resource.max_age is not None:
                 transaction.response.max_age = transaction.resource.max_age
 
-        except NotImplementedError:
+        except NotImplementedError:  # pragma: no cover
             transaction.response.code = defines.Code.METHOD_NOT_ALLOWED
             transaction.response.clear_options()
             transaction.response.payload = "PUT method is not allowed."
-        except:
+        except Exception:  # pragma: no cover
             raise errors.InternalError("Resource handler is not correctly implemented",
                                        defines.Code.INTERNAL_SERVER_ERROR, transaction=transaction,
                                        related=defines.MessageRelated.REQUEST)
@@ -237,11 +228,11 @@ class ResourceLayer(object):
             if transaction.resource.max_age is not None:
                 transaction.response.max_age = transaction.resource.max_age
 
-        except NotImplementedError:
+        except NotImplementedError:  # pragma: no cover
             transaction.response.code = defines.Code.METHOD_NOT_ALLOWED
             transaction.response.clear_options()
             transaction.response.payload = "POST method is not allowed."
-        except:
+        except Exception:  # pragma: no cover
             raise errors.InternalError("Resource handler is not correctly implemented",
                                        defines.Code.INTERNAL_SERVER_ERROR, transaction=transaction,
                                        related=defines.MessageRelated.REQUEST)
@@ -296,12 +287,12 @@ class ResourceLayer(object):
 
             return transaction
 
-        except NotImplementedError:
+        except NotImplementedError:  # pragma: no cover
             transaction.response.code = defines.Code.METHOD_NOT_ALLOWED
             transaction.response.clear_options()
             transaction.response.payload = "GET method is not allowed."
             return transaction
-        except:
+        except Exception:  # pragma: no cover
             raise errors.InternalError("Resource handler is not correctly implemented",
                                        defines.Code.INTERNAL_SERVER_ERROR, transaction=transaction,
                                        related=defines.MessageRelated.REQUEST)
