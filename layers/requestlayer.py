@@ -92,8 +92,6 @@ class RequestLayer(object):
             transaction = await self._handle_put(transaction)
         elif method == defines.Code.DELETE:
             transaction = await self._handle_delete(transaction)
-        else:
-            transaction.response = None
         return transaction
 
     async def _handle_get(self, transaction: Transaction) -> Transaction:
@@ -175,13 +173,7 @@ class RequestLayer(object):
                 resource.path = path
                 transaction.resource = resource
                 self._root[resource.path] = transaction.resource
-                # transaction = await self._resourceLayer.put_resource(transaction, resource)
                 transaction.response.code = defines.Code.CREATED
-                if transaction.response.location_path is None:
-                    transaction.response.location_path = transaction.resource.path
-                if transaction.resource.location_query is not None and len(transaction.resource.location_query) > 0:
-                    transaction.response.location_query = transaction.resource.location_query
-
             else:
                 transaction.response.code = defines.Code.NOT_FOUND
         else:
@@ -240,10 +232,7 @@ class RequestLayer(object):
 
                     self._root[transaction.resource.path] = transaction.resource
                     transaction.response.code = defines.Code.CREATED
-                    if transaction.response.location_path is None:
-                        transaction.response.location_path = transaction.resource.path
-                    if transaction.resource.location_query is not None and len(transaction.resource.location_query) > 0:
-                        transaction.response.location_query = transaction.resource.location_query
+
                 except AttributeError:
                     transaction.response.code = defines.Code.BAD_REQUEST
                     transaction.response.clear_options()

@@ -353,15 +353,10 @@ class ResourceLayer(object):
                 if isinstance(v, list):
                     lst = ""
                     for vd in v:
-                        if isinstance(vd, defines.ContentType):
-                            vd = vd.value
                         lst += "{0} ".format(vd)
                     msg.append("{0}=\"{1}\",".format(k, lst[:-1]))
                 else:
-                    if isinstance(v, defines.ContentType):
-                        v = v.value
-                    else:
-                        v = "\"{0}\"".format(v)
+                    v = "\"{0}\"".format(v)
                     msg.append("{0}={1},".format(k, v))
             else:
                 msg.append("{0},".format(k))

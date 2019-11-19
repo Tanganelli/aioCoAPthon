@@ -12,7 +12,6 @@ class Type1Resource(Resource):
     async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
                                                                                   Callable]:
         response.payload = self.payload
-        response.core_ct = self.core_ct
         return self, response
 
 
@@ -25,7 +24,6 @@ class Type2Resource(Resource):
     async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
                                                                                   Callable]:
         response.payload = self.payload
-        response.core_ct = self.core_ct
         return self, response
 
 
@@ -38,7 +36,6 @@ class GroupType1Resource(Resource):
     async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
                                                                                   Callable]:
         response.payload = self.payload
-        response.core_ct = self.core_ct
         return self, response
 
 
@@ -51,7 +48,6 @@ class GroupType2Resource(Resource):
     async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
                                                                                   Callable]:
         response.payload = self.payload
-        response.core_ct = self.core_ct
         return self, response
 
 
@@ -64,7 +60,6 @@ class GroupType3Resource(Resource):
     async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
                                                                                   Callable]:
         response.payload = self.payload
-        response.core_ct = self.core_ct
         return self, response
 
 
@@ -77,7 +72,6 @@ class GroupType4Resource(Resource):
     async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
                                                                                   Callable]:
         response.payload = self.payload
-        response.core_ct = self.core_ct
         return self, response
 
 
@@ -90,7 +84,6 @@ class GroupIf1Resource(Resource):
     async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
                                                                                   Callable]:
         response.payload = self.payload
-        response.core_ct = self.core_ct
         return self, response
 
 
@@ -103,7 +96,6 @@ class GroupIf2Resource(Resource):
     async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
                                                                                   Callable]:
         response.payload = self.payload
-        response.core_ct = self.core_ct
         return self, response
 
 
@@ -116,7 +108,6 @@ class GroupIf3Resource(Resource):
     async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
                                                                                   Callable]:
         response.payload = self.payload
-        response.core_ct = self.core_ct
         return self, response
 
 
@@ -128,7 +119,6 @@ class GroupIf4Resource(Resource):
     async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
                                                                                   Callable]:
         response.payload = self.payload
-        response.core_ct = self.core_ct
         return self, response
 
 
@@ -141,7 +131,6 @@ class SzResource(Resource):
     async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
                                                                                   Callable]:
         response.payload = self.payload
-        response.core_ct = self.core_ct
         return self, response
 
 
@@ -153,5 +142,4 @@ class LinkResource(Resource):
     async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
                                                                                   Callable]:
         response.payload = self.payload
-        response.core_ct = self.core_ct
         return self, response
