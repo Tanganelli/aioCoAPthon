@@ -1232,6 +1232,53 @@ class PlugtestCoreClass(unittest.TestCase):
         transaction = await client.send_request(req)
         ret = await client.receive_response(transaction, 10)
 
+        # STEP 2
+        req = Request()
+        req.code = defines.Code.PUT
+        req.uri_path = path
+        req.type = defines.Type.CON
+        req.mid = random.randint(1, 1000)
+        req.destination = self.server_address
+        req.payload = "New Resource"
+        req.if_none_match = True
+
+        # STEP 3
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.mid = req.mid
+        expected.code = defines.Code.CREATED
+        expected.payload = None
+        expected.source = self.server_address
+
+        transaction = await client.send_request(req)
+        ret = await client.receive_response(transaction, 10)
+
+        if ret != expected:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+            self.assertEqual(ret, expected)
+
+        # STEP 2
+        req = Request()
+        req.code = defines.Code.POST
+        req.uri_path = path
+        req.type = defines.Type.CON
+        req.mid = random.randint(1, 1000)
+        req.destination = self.server_address
+        req.payload = "New Resource"
+        req.if_none_match = True
+
+        # STEP 3
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.mid = req.mid
+        expected.code = defines.Code.PRECONDITION_FAILED
+        expected.payload = None
+        expected.source = self.server_address
+
+        transaction = await client.send_request(req)
+        ret = await client.receive_response(transaction, 10)
+
         if ret == expected:
             print("PASS")
         else:
