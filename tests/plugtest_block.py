@@ -635,7 +635,7 @@ class PlugtestBlockClass(unittest.TestCase):
         expected.source = "127.0.0.1", 5683
 
         transaction = await client.send_request(req)
-        ret = await client.receive_response(transaction, 10)
+        ret = await client.receive_response(transaction, 20)
 
         if ret == expected:
             print("PASS")
