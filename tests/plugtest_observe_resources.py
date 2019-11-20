@@ -81,3 +81,13 @@ class LargeObserveResource(Resource):
             self.observe_count += 1
             await self.notify()
 
+
+class NotObservableResource(Resource):
+    def __init__(self, name="test"):
+        super().__init__(name, observable=False)
+        self.payload = "NotObservable"
+        self.content_type = defines.ContentType.TEXT_PLAIN
+
+    async def handle_get(self, request: "Request", response: "Response"):
+        response.payload = self.payload
+        return self, response
