@@ -111,6 +111,54 @@ class PlugtestObserveClass(unittest.TestCase):
 
         transaction = await client.send_request(req)
 
+        req = Request()
+        req.code = defines.Code.GET
+        req.uri_path = path
+        req.type = defines.Type.CON
+        req.mid = random.randint(1, 1000)
+        req.destination = self.server_address
+        req.token = token
+        req.observe = 0
+
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.mid = req.mid
+        expected.code = defines.Code.CONTENT
+        expected.payload = "6"
+        expected.token = token
+        expected.observe = 3
+        expected.source = "127.0.0.1", 5683
+
+        transaction = await client.send_request(req)
+        ret = await client.receive_response(transaction, 10)
+
+        if ret != expected:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+            self.assertEqual(ret, expected)
+
+        expected = Response()
+        expected.type = defines.Type.CON
+        expected.mid = self.server_mid + 4
+        expected.code = defines.Code.CONTENT
+        expected.payload = "7"
+        expected.token = token
+        expected.observe = 4
+        expected.source = "127.0.0.1", 5683
+
+        transaction.response = None
+        ret = await client.receive_response(transaction, 10)
+
+        req = Message()
+        req.code = defines.Code.EMPTY
+        req.type = defines.Type.RST
+        req.mid = self.server_mid + 4
+        req.destination = self.server_address
+        req.token = token
+
+        transaction = await client.send_request(req)
+        await asyncio.sleep(5)
+
         if ret == expected:
             print("PASS")
         else:
