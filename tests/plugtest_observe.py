@@ -40,6 +40,7 @@ class PlugtestObserveClass(unittest.TestCase):
         server.add_resource('obs/', ObserveResource())
         server.add_resource('obs-large/', LargeObserveResource())
         server.add_resource('not-obs/', NotObservableResource())
+        server.add_resource('stable/', StableResource())
 
         loop = asyncio.get_event_loop()
         loop.create_task(server.create_server())
@@ -978,3 +979,62 @@ class PlugtestObserveClass(unittest.TestCase):
         self.assertEqual(ret, expected)
 
         self.stop_client_server(client, server)
+
+    @async_test
+    async def test_td_coap_obs_15(self):
+        client, server = await self.start_client_server()
+        print("TD_COAP_OBS_15")
+        path = "/stable"
+
+        token = utils.generate_random_hex(2)
+        req = Request()
+        req.code = defines.Code.GET
+        req.uri_path = path
+        req.type = defines.Type.CON
+        req.mid = random.randint(1, 1000)
+        req.destination = self.server_address
+        req.token = token
+        req.observe = 0
+
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.mid = req.mid
+        expected.code = defines.Code.CONTENT
+        expected.payload = "Stable"
+        expected.token = token
+        expected.observe = 2
+        expected.max_age = 20
+        expected.source = "127.0.0.1", 5683
+
+        transaction = await client.send_request(req)
+        ret = await client.receive_response(transaction, 10)
+
+        if ret != expected:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+            self.assertEqual(ret, expected)
+
+        expected = Response()
+        expected.type = defines.Type.CON
+        expected.mid = self.server_mid + 1
+        expected.code = defines.Code.CONTENT
+        expected.payload = "Stable"
+        expected.token = token
+        expected.observe = 2
+        expected.max_age = 20
+        expected.source = "127.0.0.1", 5683
+
+        transaction.response = None
+        ret = await client.receive_response(transaction, 60)
+
+        if ret == expected:
+            print("PASS")
+        else:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+            print(ret.pretty_print())
+
+        self.assertEqual(ret, expected)
+
+        self.stop_client_server(client, server)
+

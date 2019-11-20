@@ -91,3 +91,15 @@ class NotObservableResource(Resource):
     async def handle_get(self, request: "Request", response: "Response"):
         response.payload = self.payload
         return self, response
+
+
+class StableResource(Resource):
+    def __init__(self, name="stable"):
+        super().__init__(name)
+        self.payload = "Stable"
+        self.content_type = defines.ContentType.TEXT_PLAIN
+
+    async def handle_get(self, request: "Request", response: "Response"):
+        response.payload = self.payload
+        response.max_age = 20
+        return self, response

@@ -45,6 +45,7 @@ class PlugtestCoreClass(unittest.TestCase):
         server.add_resource('multi-format/', MultiFormatResource())
         server.add_resource('validate/', ValidateResource())
         server.add_resource('storage/', StorageResource())
+        print(server.get_resources())
 
         loop = asyncio.get_event_loop()
         loop.create_task(server.create_server())

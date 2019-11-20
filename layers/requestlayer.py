@@ -62,17 +62,17 @@ class RequestLayer(object):
     #         del self._root[path]
     #     return True
     #
-    # def get_resources(self, prefix=None):
-    #     lst = self._root.dump()
-    #     if prefix is None:
-    #         return lst
-    #     else:
-    #         ret = []
-    #         for uri in lst:
-    #             assert isinstance(uri, str)
-    #             if uri.startswith(prefix):
-    #                 ret.append(uri)
-    #         return ret
+    def get_resources(self, prefix=None):
+        lst = self._root.dump()
+        if prefix is None:
+            return lst
+        else:
+            ret = []
+            for uri in lst:
+                assert isinstance(uri, str)
+                if uri.startswith(prefix):
+                    ret.append(uri)
+            return ret
 
     async def receive_request(self, transaction: Transaction) -> Transaction:
         """
