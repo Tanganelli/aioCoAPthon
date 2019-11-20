@@ -115,7 +115,6 @@ class MessageLayer(object):
         transaction.response = response
         if response.type != defines.Type.CON:
             transaction.response.acknowledged = True
-            transaction.completed = True
         transaction.retransmit_stop = True
         if transaction.retransmit_task is not None:
             transaction.retransmit_task.cancel()

@@ -263,6 +263,7 @@ class CoAPProtocol(object):
     async def handle_message(self, transaction, message):
         if isinstance(message, Response):
             if transaction.retransmit_task is not None:
+                transaction.retransmit_stop = True
                 transaction.retransmit_task.cancel()
             if transaction.response.type == defines.Type.CON:
                 transaction.response.acknowledged = True
@@ -359,20 +360,19 @@ class CoAPProtocol(object):
         try:
             if message.type == defines.Type.CON:
                 while retransmit_count < defines.MAX_RETRANSMIT and \
-                        (not message.acknowledged and not message.rejected and not transaction.completed) \
+                        (not message.acknowledged and not message.rejected) \
                         and not transaction.retransmit_stop:
-                    coro = asyncio.sleep(future_time)
-                    task = asyncio.ensure_future(coro)
-                    await task
+                    await asyncio.sleep(future_time)
                     if not message.acknowledged and not message.rejected:
                         retransmit_count += 1
                         future_time *= 2
+                        logger.error(f"Retransmit message #{retransmit_count}, next attempt in {future_time}")
                         await self._send_datagram(message)
 
-                if message.acknowledged or message.rejected or transaction.completed:
+                if message.acknowledged or message.rejected:
                     message.timeouts = False
                 else:
-                    logger.warning("Give up on message {message}".format(message=message.line_print))
+                    logger.error("Give up on message {message}".format(message=message.line_print))
                     message.timeouts = True
                     if message.observe is not None:
                         await self._observeLayer.remove_subscriber(message)

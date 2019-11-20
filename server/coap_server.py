@@ -29,6 +29,8 @@ class CoAPServer(CoAPProtocol):
                 await self.receive_message()
             except asyncio.CancelledError:
                 return
+            except Exception:
+                return
 
     def add_resource(self, path: str, resource: Resource) -> bool:
         """
@@ -104,12 +106,10 @@ class CoAPServer(CoAPProtocol):
                 for transaction in observers:
                     try:
                         logger.debug("Notify All")
-                        if transaction.resource.max_age is None and transaction.response.max_age is None:
-                            max_age = 60
-                        elif transaction.response.max_age is not None:
+                        if transaction.response.max_age is not None:
                             max_age = transaction.response.max_age
                         else:
-                            max_age = transaction.resource.max_age
+                            max_age = 60
                         notify_in = transaction.response.timestamp + max_age - time.time() - defines.OBSERVING_JITTER
                         if notify_in <= 0:
                             if transaction.response.type == defines.Type.NON or transaction.response.acknowledged:
@@ -121,12 +121,11 @@ class CoAPServer(CoAPProtocol):
                                 transaction = await self._blockLayer.send_response(transaction)
                                 transaction = await self._messageLayer.send_response(transaction)
                                 if transaction.response is not None:
-                                    if transaction.resource.max_age is None and transaction.response.max_age is None:
-                                        notify_in = 60
-                                    elif transaction.response.max_age is not None:
+                                    if transaction.response.max_age is not None:
                                         notify_in = transaction.response.max_age
                                     else:
-                                        notify_in = transaction.resource.max_age
+                                        notify_in = 60
+                                    transaction.response.acknowledged = False
                                     if transaction.response.type == defines.Type.CON:
                                         future_time = random.uniform(defines.ACK_TIMEOUT,
                                                                      (defines.ACK_TIMEOUT * defines.ACK_RANDOM_FACTOR))

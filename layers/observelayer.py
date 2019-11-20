@@ -237,16 +237,19 @@ class ObserveLayer(object):
         """
         ret = []
         for key in list(self._relations.keys()):
-            if self._relations[key].non_counter > defines.MAX_NON_NOTIFICATIONS \
-                    or self._relations[key].transaction.request.type == defines.Type.CON:
-                self._relations[key].transaction.response.type = defines.Type.CON
-                self._relations[key].non_counter = 0
-            elif self._relations[key].transaction.request.type == defines.Type.NON:
-                self._relations[key].non_counter += 1
-                self._relations[key].transaction.response.type = defines.Type.NON
-            del self._relations[key].transaction.response.mid
-            # del self._relations[key].transaction.response.token
-            ret.append(self._relations[key].transaction)
+            if self._relations[key].transaction.retransmit_stop is True or \
+                    self._relations[key].transaction.retransmit_task is None:
+                if self._relations[key].non_counter > defines.MAX_NON_NOTIFICATIONS \
+                        or self._relations[key].transaction.request.type == defines.Type.CON:
+                    self._relations[key].transaction.response.type = defines.Type.CON
+                    self._relations[key].non_counter = 0
+                elif self._relations[key].transaction.request.type == defines.Type.NON:
+                    self._relations[key].non_counter += 1
+                    self._relations[key].transaction.response.type = defines.Type.NON
+
+                del self._relations[key].transaction.response.mid
+                # del self._relations[key].transaction.response.token
+                ret.append(self._relations[key].transaction)
         return ret
 
     async def remove_subscriber(self, message):
@@ -263,7 +266,6 @@ class ObserveLayer(object):
                                        defines.Code.INTERNAL_SERVER_ERROR, e)
         key_token = utils.str_append_hash(host, port, message.token)
         try:
-            self._relations[key_token].transaction.completed = True
             del self._relations[key_token]
         except KeyError:  # pragma: no cover
             logger.exception("Subscriber was not registered")
