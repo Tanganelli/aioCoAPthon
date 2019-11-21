@@ -59,7 +59,7 @@ class MessageLayer(object):
         logger.debug("receive_request - {0}".format(request))
         try:
             host, port = request.source
-        except TypeError or AttributeError:
+        except TypeError or AttributeError:  # pragma: no cover
             raise errors.InternalError("Request Source cannot be computed")
         key_mid = utils.str_append_hash(host, port, request.mid)
         key_token = utils.str_append_hash(host, port, request.token)
@@ -89,7 +89,7 @@ class MessageLayer(object):
         logger.debug("receive_response - {0}".format(response))
         try:
             host, port = response.source
-        except TypeError or AttributeError:
+        except TypeError or AttributeError:  # pragma: no cover
             raise errors.InternalError("Response Source cannot be computed")
 
         key_mid = utils.str_append_hash(host, port, response.mid)
@@ -132,7 +132,7 @@ class MessageLayer(object):
         logger.debug("receive_empty - {0}".format(message))
         try:
             host, port = message.source
-        except TypeError or AttributeError:
+        except TypeError or AttributeError:  # pragma: no cover
             raise errors.InternalError("Request Source cannot be computed")
 
         key_mid = utils.str_append_hash(host, port, message.mid)
@@ -203,7 +203,7 @@ class MessageLayer(object):
 
         try:
             host, port = request.destination
-        except TypeError or AttributeError:
+        except TypeError or AttributeError:  # pragma: no cover
             raise errors.InternalError("Request destination cannot be computed")
 
         request.timestamp = time.time()
@@ -239,7 +239,7 @@ class MessageLayer(object):
                 transaction.completed = True
             elif transaction.request.type == defines.Type.NON:
                 transaction.response.type = defines.Type.NON
-                transaction.completed = True
+                transaction.response.acknowledged = True
             else:
                 transaction.response.type = defines.Type.CON
                 transaction.response.token = transaction.request.token
@@ -250,7 +250,7 @@ class MessageLayer(object):
             transaction.response.mid = self.fetch_mid()
         try:
             host, port = transaction.response.destination
-        except TypeError or AttributeError:
+        except TypeError or AttributeError:  # pragma: no cover
             raise errors.InternalError("Response destination cannot be computed")
 
         logger.debug("send_response - {0}".format(transaction.response))
@@ -308,7 +308,7 @@ class MessageLayer(object):
 
             try:
                 host, port = transaction.request.source
-            except TypeError or AttributeError:
+            except TypeError or AttributeError:  # pragma: no cover
                 raise errors.InternalError("Response destination cannot be computed")
             key_mid = utils.str_append_hash(host, port, transaction.request.mid)
             key_token = utils.str_append_hash(host, port, transaction.request.token)
@@ -340,7 +340,7 @@ class MessageLayer(object):
 
             try:
                 host, port = transaction.response.source
-            except TypeError or AttributeError:
+            except TypeError or AttributeError:  # pragma: no cover
                 raise errors.InternalError("Response destination cannot be computed")
             key_mid = utils.str_append_hash(host, port, transaction.response.mid)
             key_token = utils.str_append_hash(host, port, transaction.response.token)
@@ -356,7 +356,7 @@ class MessageLayer(object):
             # for clients
             try:
                 host, port = message.destination
-            except TypeError or AttributeError:
+            except TypeError or AttributeError:  # pragma: no cover
                 raise errors.InternalError("Message destination cannot be computed")
 
             key_mid = utils.str_append_hash(host, port, message.mid)

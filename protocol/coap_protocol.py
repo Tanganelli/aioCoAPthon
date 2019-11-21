@@ -156,7 +156,7 @@ class CoAPProtocol(object):
                     rst.mid = e.message.mid
                     await self._send_datagram(rst)
         except errors.CoAPException as e:
-            pass
+            logger.error(e.msg)
         else:
             results = await asyncio.gather(self.handle_message(transaction, msg_type), return_exceptions=True)
             for e in results:
@@ -282,8 +282,8 @@ class CoAPProtocol(object):
                 else:
                     if transaction.separate_task is not None:
                         transaction.separate_task.cancel()
-                        await self._messageLayer.send_response(transaction)
-                        await self._send_datagram(transaction.response)
+                    transaction = await self._messageLayer.send_response(transaction)
+                    await self._send_datagram(transaction.response)
                 return
 
             transaction.separate_task = self._loop.create_task(self._send_ack(transaction))
@@ -295,7 +295,7 @@ class CoAPProtocol(object):
             if transaction.block_transfer:
                 transaction.separate_task.cancel()
                 transaction = await self._blockLayer.send_response(transaction)
-                await self._messageLayer.send_response(transaction)
+                transaction = await self._messageLayer.send_response(transaction)
                 await self._send_datagram(transaction.response)
                 return
             transaction = await self._observeLayer.receive_request(transaction)

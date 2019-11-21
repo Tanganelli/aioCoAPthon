@@ -386,6 +386,16 @@ class PlugtestObserveClass(unittest.TestCase):
         transaction.response = None
         ret = await client.receive_response(transaction, 10)
 
+        req = Message()
+        req.code = defines.Code.EMPTY
+        req.type = defines.Type.ACK
+        req.mid = self.server_mid + 4
+        req.destination = self.server_address
+        req.token = token
+
+        transaction = await client.send_request(req)
+        await asyncio.sleep(5)
+
         if ret == expected:
             print("PASS")
         else:
