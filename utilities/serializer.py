@@ -56,14 +56,13 @@ class Serializer(object):
             data, length = Serializer._read_extended_value(length, data)
             option_number += delta
             if len(data) < length:
-                raise errors.MessageFormatError("Option value is not present", defines.Code.BAD_REQUEST)
+                raise errors.CoAPException("Option value is not present")
             try:
                 option_item = OptionRegistry(option_number)
             except KeyError or ValueError:
                 (opt_critical, _, _) = OptionRegistry.get_option_flags(option_number)
                 if opt_critical:
-                    raise errors.MessageFormatError("Critical option {0} unknown".format(option_number),
-                                                    defines.Code.BAD_REQUEST)
+                    raise errors.CoAPException("Critical option {0} unknown".format(option_number))
                 else:
                     # If the non-critical option is unknown
                     # (vendor-specific, proprietary) - just skip it
@@ -107,17 +106,17 @@ class Serializer(object):
         tkl = int(vttkl & 0x0F)
 
         if version != defines.VERSION:
-            raise errors.MessageFormatError("Unsupported protocol version", defines.Code.BAD_REQUEST, mid)
+            raise errors.ProtocolError("Unsupported protocol version", mid)
 
         if 9 <= tkl <= 15:
-            raise errors.MessageFormatError("Token Length 9-15 are reserved", defines.Code.BAD_REQUEST, mid)
+            raise errors.ProtocolError("Token Length 9-15 are reserved", mid)
 
         code_class = (code & 0b11100000) >> 5
         code_details = (code & 0b00011111)
         try:
             cl = MessageCodeClass(code_class)
         except ValueError:
-            raise errors.MessageFormatError("Unknown code class {0}".format(code_class), defines.Code.BAD_REQUEST, mid)
+            raise errors.ProtocolError("Unknown code class {0}".format(code_class), mid)
         try:
             if cl == MessageCodeClass.RESPONSE or cl == MessageCodeClass.CLIENT_ERROR or \
                     cl == MessageCodeClass.SERVER_ERROR:
@@ -130,7 +129,7 @@ class Serializer(object):
                 message = Message()
                 message.code = defines.Code.EMPTY
         except ValueError:
-            raise errors.MessageFormatError("Unknown code {0}".format(code), defines.Code.BAD_REQUEST, mid)
+            raise errors.ProtocolError("Unknown code {0}".format(code), mid)
 
         if source is not None:
             message.source = source
@@ -147,10 +146,10 @@ class Serializer(object):
         try:
             datagram, options = cls._deserialize_options(datagram[tkl:])
         except errors.CoAPException as e:
-            raise errors.MessageFormatError(e.msg, defines.Code.BAD_REQUEST, mid)
+            raise errors.ProtocolError(e.msg, mid)
         message.add_options(options)
         if len(datagram) == 1:
-            raise errors.MessageFormatError("Payload Marker with no payload", defines.Code.BAD_REQUEST, mid)
+            raise errors.ProtocolError("Payload Marker with no payload", mid)
         elif len(datagram) == 0:
             message.payload = None
         else:

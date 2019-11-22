@@ -155,7 +155,7 @@ class CoAPProtocol(object):
                     rst.type = defines.Type.RST
                     rst.mid = e.message.mid
                     await self._send_datagram(rst)
-        except errors.MessageFormatError as e:
+        except errors.ProtocolError as e:
             '''
                From RFC 7252, Section 4.2
                reject the message if the recipient
@@ -175,7 +175,6 @@ class CoAPProtocol(object):
             rst = Message()
             rst.destination = addr
             rst.type = defines.Type.RST
-            rst.code = e.response_code
             rst.mid = e.mid
             rst.payload = e.msg
             await self._send_datagram(rst)
@@ -183,20 +182,13 @@ class CoAPProtocol(object):
             if e.transaction.separate_task is not None:
                 e.transaction.separate_task.cancel()
                 del e.transaction.separate_task
-            rst = Message()
-            rst.destination = addr
-            rst.type = defines.Type.RST
-            rst.code = e.response_code
 
-            if e.related == defines.MessageRelated.REQUEST:
-                rst.mid = e.transaction.request.mid
-                rst.token = e.transaction.request.token
-            elif e.related == defines.MessageRelated.RESPONSE:
-                rst.mid = e.transaction.response.mid
-                rst.token = e.transaction.response.token
-
-            rst.payload = e.msg
-            await self._send_datagram(rst)
+            e.transaction.response = Response()
+            e.transaction.response.destination = addr
+            e.transaction.response.code = e.response_code
+            e.transaction.response.payload = e.msg
+            transaction = await self._messageLayer.send_response(e.transaction)
+            await self._send_datagram(transaction.response)
             logger.error(e.msg)
         except errors.CoAPException as e:
             logger.error(e.msg)
@@ -205,31 +197,29 @@ class CoAPProtocol(object):
         else:
             results = await asyncio.gather(self.handle_message(transaction, msg_type), return_exceptions=True)
             for e in results:
-                if isinstance(e, errors.MessageFormatError):
-                    if e.mid is not None:
-                        '''
-                           From RFC 7252, Section 4.2
-                           reject the message if the recipient
-                           lacks context to process the message properly, including situations
-                           where the message is Empty, uses a code with a reserved class (1, 6,
-                           or 7), or has a message format error.  Rejecting a Confirmable
-                           message is effected by sending a matching Reset message and otherwise
-                           ignoring it.
-    
-                           From RFC 7252, Section 4.3
-                           A recipient MUST reject the message
-                           if it lacks context to process the message properly, including the
-                           case where the message is Empty, uses a code with a reserved class
-                           (1, 6, or 7), or has a message format error.  Rejecting a Non-
-                           confirmable message MAY involve sending a matching Reset message
-                        '''
-                        rst = Message()
-                        rst.destination = addr
-                        rst.type = defines.Type.RST
-                        rst.code = e.response_code
-                        rst.mid = e.mid
-                        rst.payload = e.msg
-                        await self._send_datagram(rst)
+                if isinstance(e, errors.ProtocolError):
+                    '''
+                       From RFC 7252, Section 4.2
+                       reject the message if the recipient
+                       lacks context to process the message properly, including situations
+                       where the message is Empty, uses a code with a reserved class (1, 6,
+                       or 7), or has a message format error.  Rejecting a Confirmable
+                       message is effected by sending a matching Reset message and otherwise
+                       ignoring it.
+
+                       From RFC 7252, Section 4.3
+                       A recipient MUST reject the message
+                       if it lacks context to process the message properly, including the
+                       case where the message is Empty, uses a code with a reserved class
+                       (1, 6, or 7), or has a message format error.  Rejecting a Non-
+                       confirmable message MAY involve sending a matching Reset message
+                    '''
+                    rst = Message()
+                    rst.destination = addr
+                    rst.type = defines.Type.RST
+                    rst.mid = e.mid
+                    rst.payload = e.msg
+                    await self._send_datagram(rst)
                 elif isinstance(e, errors.PongException):
                     if e.message is not None:
                         # check if it is ping
@@ -279,15 +269,14 @@ class CoAPProtocol(object):
         message = await self._serializer.deserialize(data, source=addr)
         if isinstance(message, Request):
             if message.type == defines.Type.RST or message.type == defines.Type.ACK:
-                raise errors.MessageFormatError("Request cannot be carried in RST or ACK messages",
-                                                defines.Code.BAD_REQUEST,
-                                                message.mid)
+                raise errors.ProtocolError("Request cannot be carried in RST or ACK messages",
+                                           message.mid)
             transaction = await self._messageLayer.receive_request(message)
             return transaction, message
         elif isinstance(message, Response):
-            # if message.type == defines.Type.RST:
-            #     raise errors.MessageFormatError("Responses cannot be carried in RST messages", defines.Code.BAD_REQUEST,
-            #                                     message.mid)
+            if message.type == defines.Type.RST:
+                raise errors.ProtocolError("Responses cannot be carried in RST messages",
+                                           message.mid)
             transaction = await self._messageLayer.receive_response(message)
             return transaction, message
         elif isinstance(message, Message):
@@ -297,8 +286,8 @@ class CoAPProtocol(object):
                    A Non-confirmable message always carries either a request or response and
                    MUST NOT be Empty.
                 '''
-                raise errors.MessageFormatError("NON messages cannot be EMPTY", defines.Code.BAD_REQUEST,
-                                                message.mid)
+                raise errors.ProtocolError("NON messages cannot be EMPTY",
+                                           message.mid)
             transaction = await self._messageLayer.receive_empty(message)
             return transaction, message
         else:
@@ -311,7 +300,8 @@ class CoAPProtocol(object):
                 transaction.retransmit_task.cancel()
             if transaction.response.type == defines.Type.CON:
                 transaction.response.acknowledged = True
-                self._loop.create_task(self._send_empty(transaction, defines.Type.ACK))
+                transaction, message = await self._messageLayer.send_empty(transaction, defines.MessageRelated.RESPONSE)
+                await self._send_datagram(message)
             transaction = await self._blockLayer.receive_response(transaction)
             transaction = await self._observeLayer.receive_response(transaction)
 
@@ -452,10 +442,6 @@ class CoAPProtocol(object):
     def _send_automatic_ack(transaction: Transaction):
         if not transaction.request.acknowledged and transaction.request.type == defines.Type.CON:
             transaction.send_separate.set()
-
-    async def _send_empty(self, transaction, msg_type):
-        transaction, message = await self._messageLayer.send_empty(transaction, defines.MessageRelated.RESPONSE, msg_type)
-        await self._send_datagram(message)
 
     def stop(self):
         self._stop.set()

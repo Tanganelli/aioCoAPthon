@@ -90,7 +90,7 @@ class ResourceLayer(object):
             else:  # pragma: no cover
                 raise errors.InternalError(msg="Resource handler is not correctly implemented",
                                            response_code=defines.Code.INTERNAL_SERVER_ERROR,
-                                           transaction=transaction, related=defines.MessageRelated.REQUEST)
+                                           transaction=transaction)
 
             # Accept
             if transaction.request.accept is not None and response.content_type is not None \
@@ -118,7 +118,7 @@ class ResourceLayer(object):
         except Exception:  # pragma: no cover
             raise errors.InternalError(msg="Resource handler is not correctly implemented",
                                        response_code=defines.Code.INTERNAL_SERVER_ERROR,
-                                       transaction=transaction, related=defines.MessageRelated.REQUEST)
+                                       transaction=transaction)
 
     @classmethod
     async def put_resource(cls, transaction: Transaction, resource: Resource) -> Transaction:
@@ -154,7 +154,7 @@ class ResourceLayer(object):
             else:  # pragma: no cover
                 raise errors.InternalError(msg="Resource handler is not correctly implemented",
                                            response_code=defines.Code.INTERNAL_SERVER_ERROR,
-                                           transaction=transaction, related=defines.MessageRelated.REQUEST)
+                                           transaction=transaction)
 
             transaction.resource, transaction.response = resource_rep, response
             transaction.resource.changed = True
@@ -170,7 +170,7 @@ class ResourceLayer(object):
         except Exception:  # pragma: no cover
             raise errors.InternalError(msg="Resource handler is not correctly implemented",
                                        response_code=defines.Code.INTERNAL_SERVER_ERROR,
-                                       transaction=transaction, related=defines.MessageRelated.REQUEST)
+                                       transaction=transaction)
 
         return transaction
 
@@ -208,7 +208,7 @@ class ResourceLayer(object):
             else:  # pragma: no cover
                 raise errors.InternalError(msg="Resource handler is not correctly implemented",
                                            response_code=defines.Code.INTERNAL_SERVER_ERROR,
-                                           transaction=transaction, related=defines.MessageRelated.REQUEST)
+                                           transaction=transaction)
 
             transaction.resource, transaction.response = resource_rep, response
             transaction.resource.changed = True
@@ -224,7 +224,7 @@ class ResourceLayer(object):
         except Exception:  # pragma: no cover
             raise errors.InternalError(msg="Resource handler is not correctly implemented",
                                        response_code=defines.Code.INTERNAL_SERVER_ERROR,
-                                       transaction=transaction, related=defines.MessageRelated.REQUEST)
+                                       transaction=transaction)
 
         return transaction
 
@@ -264,7 +264,7 @@ class ResourceLayer(object):
             else:  # pragma: no cover
                 raise errors.InternalError(msg="Resource handler is not correctly implemented",
                                            response_code=defines.Code.INTERNAL_SERVER_ERROR,
-                                           transaction=transaction, related=defines.MessageRelated.REQUEST)
+                                           transaction=transaction)
 
             transaction.response = response
             transaction.resource = resource
@@ -285,7 +285,7 @@ class ResourceLayer(object):
         except Exception:  # pragma: no cover
             raise errors.InternalError(msg="Resource handler is not correctly implemented",
                                        response_code=defines.Code.INTERNAL_SERVER_ERROR,
-                                       transaction=transaction, related=defines.MessageRelated.REQUEST)
+                                       transaction=transaction)
 
     @staticmethod
     def valid(query, attributes, path):

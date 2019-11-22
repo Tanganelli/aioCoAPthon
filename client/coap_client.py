@@ -37,7 +37,7 @@ class CoAPClient(CoAPProtocol):
         elif isinstance(request, Message):
             message = await self._observeLayer.send_empty(request)
             message.destination = self._address
-            transaction, message = await self._messageLayer.send_empty(None, None, None, message=message)
+            transaction, message = await self._messageLayer.send_empty(message=message)
             await self._send_datagram(message)
             return transaction
         return None

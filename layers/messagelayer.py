@@ -69,9 +69,8 @@ class MessageLayer(object):
             from_token = self._transactions_token.get(key_token, None)
             if from_token is None:
                 logger.warning("Duplicated message with different Token")
-                raise errors.InternalError(msg=f"Tokens does not match -  response message {host}:{port}",
-                                           response_code=defines.Code.INTERNAL_SERVER_ERROR,
-                                           transaction=transaction, related=defines.MessageRelated.REQUEST)
+                raise errors.ProtocolError(msg="Tokens does not match",
+                                           mid=transaction.request.mid)
             transaction.request.duplicated = True
         else:
             request.timestamp = time.time()
@@ -213,8 +212,8 @@ class MessageLayer(object):
 
         request.timestamp = time.time()
         transaction = Transaction(request=request, timestamp=request.timestamp, origin=defines.Origin.LOCAL)
-        if transaction.request.type is None:
-            transaction.request.type = defines.Type.CON
+        if transaction.request.type is None:  # pragma: no cover
+            raise errors.CoAPException("Request type is not set")
 
         if transaction.request.mid is None:
             transaction.request.mid = self.fetch_mid()
@@ -241,14 +240,14 @@ class MessageLayer(object):
                 transaction.response.type = defines.Type.ACK
                 transaction.response.mid = transaction.request.mid
                 transaction.response.acknowledged = True
-                transaction.completed = True
+                # transaction.completed = True
             elif transaction.request.type == defines.Type.NON:
                 transaction.response.type = defines.Type.NON
                 transaction.response.acknowledged = True
             else:
                 transaction.response.type = defines.Type.CON
-                transaction.response.token = transaction.request.token
 
+        transaction.response.token = transaction.request.token
         transaction.response.timestamp = time.time()
 
         if transaction.response.mid is None:
@@ -274,8 +273,8 @@ class MessageLayer(object):
         transaction.request.acknowledged = True
         return transaction
 
-    async def send_empty(self, transaction: Optional[Transaction], related: Optional[defines.MessageRelated],
-                         msg_type: Optional[defines.Type] = defines.Type.ACK,
+    async def send_empty(self, transaction: Optional[Transaction] = None,
+                         related: Optional[defines.MessageRelated] = None,
                          message: Message = None) -> Tuple[Transaction, Message]:
         """
         Manage ACK or RST related to a transaction. Sets if the transaction has been acknowledged or rejected.
@@ -290,21 +289,9 @@ class MessageLayer(object):
             message = Message()
         if related == defines.MessageRelated.REQUEST:
             if transaction.request.type == defines.Type.CON:
-                if msg_type == defines.Type.ACK:
-                    transaction.request.acknowledged = True
-                elif msg_type == defines.Type.RST:
-                    transaction.request.rejected = True
-                else:  # pragma: no cover
-                    raise errors.CoAPException("Only ACK and RST can be sent empty. For ping use the ping function.")
-                transaction.completed = True
-                message.type = msg_type
-                message.mid = transaction.request.mid
-                message.code = defines.Code.EMPTY
-                message.destination = transaction.request.source
-            elif transaction.request.type == defines.Type.NON and msg_type == defines.Type.RST:
-                transaction.request.rejected = True
-                transaction.completed = True
-                message.type = defines.Type.RST
+                transaction.request.acknowledged = True
+                # transaction.completed = True
+                message.type = defines.Type.ACK
                 message.mid = transaction.request.mid
                 message.code = defines.Code.EMPTY
                 message.destination = transaction.request.source
@@ -322,21 +309,9 @@ class MessageLayer(object):
 
         elif related == defines.MessageRelated.RESPONSE:
             if transaction.response.type == defines.Type.CON:
-                if msg_type == defines.Type.ACK:
-                    transaction.response.acknowledged = True
-                elif msg_type == defines.Type.RST:
-                    transaction.response.rejected = True
-                else:  # pragma: no cover
-                    raise errors.CoAPException("Only ACK and RST can be sent empty in reply to a response")
-                transaction.completed = True
-                message.type = msg_type
-                message.mid = transaction.response.mid
-                message.code = defines.Code.EMPTY
-                message.destination = transaction.response.source
-            elif transaction.response.type == defines.Type.NON and msg_type == defines.Type.RST:
-                transaction.response.rejected = True
-                transaction.completed = True
-                message.type = defines.Type.RST
+                transaction.response.acknowledged = True
+                # transaction.completed = True
+                message.type = defines.Type.ACK
                 message.mid = transaction.response.mid
                 message.code = defines.Code.EMPTY
                 message.destination = transaction.response.source

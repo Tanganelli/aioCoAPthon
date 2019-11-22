@@ -86,7 +86,7 @@ class BlockLayer(object):
                     # Error Incomplete
                     raise errors.InternalError(msg="Entity incomplete",
                                                response_code=defines.Code.REQUEST_ENTITY_INCOMPLETE,
-                                               transaction=transaction, related=defines.MessageRelated.REQUEST)
+                                               transaction=transaction)
                 self._block1_receive[key_token].payload += transaction.request.payload
             else:
                 # first block
@@ -94,7 +94,7 @@ class BlockLayer(object):
                     # Error Incomplete
                     raise errors.InternalError(msg="Entity incomplete",
                                                response_code=defines.Code.REQUEST_ENTITY_INCOMPLETE,
-                                               transaction=transaction, related=defines.MessageRelated.REQUEST)
+                                               transaction=transaction)
                 content_type = transaction.request.content_type
                 self._block1_receive[key_token] = BlockItem(size, num, m, size, transaction.request.payload,
                                                             content_type)
@@ -232,9 +232,13 @@ class BlockLayer(object):
             item = self._block1_sent[key_token]
             n_num, n_m, n_size = transaction.response.block1
             if n_num != item.num:
-                raise errors.InternalError(msg=f"Block num acknowledged error, expected {item.num} received {n_num}",
-                                           response_code=defines.Code.REQUEST_ENTITY_INCOMPLETE,
-                                           transaction=transaction, related=defines.MessageRelated.RESPONSE)
+                if transaction.response.type == defines.Type.CON or transaction.response.type == defines.Type.NON:
+                    raise errors.ProtocolError(msg=f"Block num acknowledged error, expected {item.num} "
+                                                   f"received {n_num}",
+                                               mid=transaction.response.mid)
+                else:
+                    raise errors.CoAPException(msg=f"Block num acknowledged error, expected {item.num} "
+                                                   f"received {n_num}")
             if n_size < item.size:
                 logger.debug("Scale down size, was " + str(item.size) + " become " + str(n_size))
                 item.size = n_size
@@ -245,16 +249,22 @@ class BlockLayer(object):
                 if key_token in self._block2_sent:
                     item = self._block2_sent[key_token]
                     if num != item.num:
-                        raise errors.InternalError(msg="Receive unwanted block",
-                                                   response_code=defines.Code.REQUEST_ENTITY_INCOMPLETE,
-                                                   transaction=transaction, related=defines.MessageRelated.RESPONSE)
+                        if transaction.response.type == defines.Type.CON or transaction.response.type == defines.Type.NON:
+                            raise errors.ProtocolError(msg=f"Receive unwanted block, expected {item.num} "
+                                                           f"received {num}",
+                                                       mid=transaction.response.mid)
+                        else:
+                            raise errors.CoAPException(msg=f"Receive unwanted block, expected {item.num} "
+                                                           f"received {num}")
 
                     if item.content_type is None:
                         item.content_type = transaction.response.content_type
                     if item.content_type != transaction.response.content_type:
-                        raise errors.InternalError(msg="Content-type Error",
-                                                   response_code=defines.Code.UNSUPPORTED_CONTENT_FORMAT,
-                                                   transaction=transaction, related=defines.MessageRelated.RESPONSE)
+                        if transaction.response.type == defines.Type.CON or transaction.response.type == defines.Type.NON:
+                            raise errors.ProtocolError(msg=f"Content-type Error",
+                                                       mid=transaction.response.mid)
+                        else:
+                            raise errors.CoAPException(msg=f"Content-type Error")
                     item.byte += size
                     item.num = num + 1
                     item.size = size
@@ -270,9 +280,11 @@ class BlockLayer(object):
                     if self._block2_sent[key_token].content_type is None:
                         self._block2_sent[key_token].content_type = transaction.response.content_type
                     if self._block2_sent[key_token].content_type != transaction.response.content_type:
-                        raise errors.InternalError(msg="Content-type Error",
-                                                   response_code=defines.Code.UNSUPPORTED_CONTENT_FORMAT,
-                                                   transaction=transaction, related=defines.MessageRelated.RESPONSE)
+                        if transaction.response.type == defines.Type.CON or transaction.response.type == defines.Type.NON:
+                            raise errors.ProtocolError(msg=f"Content-type Error",
+                                                       mid=transaction.response.mid)
+                        else:
+                            raise errors.CoAPException(msg=f"Content-type Error")
                     del self._block2_sent[key_token]
 
         return transaction
