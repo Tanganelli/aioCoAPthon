@@ -55,8 +55,7 @@ class BlockLayer(object):
         try:
             host, port = transaction.request.source
         except AttributeError:
-            raise errors.InternalError("Request Source cannot be computed", defines.Code.INTERNAL_SERVER_ERROR,
-                                       transaction=transaction, related=defines.MessageRelated.REQUEST)
+            raise errors.CoAPException("Request Source cannot be computed")
 
         key_token = utils.str_append_hash(host, port, transaction.request.token)
 
@@ -85,14 +84,16 @@ class BlockLayer(object):
                         or content_type != self._block1_receive[key_token].content_type \
                         or transaction.request.payload is None:
                     # Error Incomplete
-                    raise errors.InternalError("Entity incomplete", defines.Code.REQUEST_ENTITY_INCOMPLETE,
+                    raise errors.InternalError(msg="Entity incomplete",
+                                               response_code=defines.Code.REQUEST_ENTITY_INCOMPLETE,
                                                transaction=transaction, related=defines.MessageRelated.REQUEST)
                 self._block1_receive[key_token].payload += transaction.request.payload
             else:
                 # first block
                 if num != 0:
                     # Error Incomplete
-                    raise errors.InternalError("Entity incomplete", defines.Code.REQUEST_ENTITY_INCOMPLETE,
+                    raise errors.InternalError(msg="Entity incomplete",
+                                               response_code=defines.Code.REQUEST_ENTITY_INCOMPLETE,
                                                transaction=transaction, related=defines.MessageRelated.REQUEST)
                 content_type = transaction.request.content_type
                 self._block1_receive[key_token] = BlockItem(size, num, m, size, transaction.request.payload,
@@ -131,8 +132,7 @@ class BlockLayer(object):
         try:
             host, port = transaction.request.source
         except AttributeError:
-            raise errors.InternalError("Request Source cannot be computed", defines.Code.INTERNAL_SERVER_ERROR,
-                                       transaction=transaction, related=defines.MessageRelated.REQUEST)
+            raise errors.CoAPException("Request Source cannot be computed")
 
         key_token = utils.str_append_hash(host, port, transaction.request.token)
 
@@ -189,7 +189,7 @@ class BlockLayer(object):
             try:
                 host, port = request.destination
             except AttributeError:
-                raise errors.InternalError("Request destination cannot be computed")
+                raise errors.CoAPException("Request destination cannot be computed")
             key_token = utils.str_append_hash(host, port, request.token)
             if request.block1:
                 num, m, size = request.block1
@@ -205,7 +205,7 @@ class BlockLayer(object):
             try:
                 host, port = request.destination
             except AttributeError:
-                raise errors.InternalError("Request destination cannot be computed")
+                raise errors.CoAPException("Request destination cannot be computed")
             key_token = utils.str_append_hash(host, port, request.token)
             num, m, size = request.block2
             item = BlockItem(size, num, m, size)
@@ -225,17 +225,16 @@ class BlockLayer(object):
         try:
             host, port = transaction.response.source
         except AttributeError:
-            raise errors.InternalError("Response source cannot be computed", defines.Code.INTERNAL_SERVER_ERROR,
-                                       transaction=transaction, related=defines.MessageRelated.RESPONSE)
+            raise errors.CoAPException("Response source cannot be computed")
         key_token = utils.str_append_hash(host, port, transaction.response.token)
 
         if key_token in self._block1_sent and transaction.response.block1 is not None:
             item = self._block1_sent[key_token]
             n_num, n_m, n_size = transaction.response.block1
-            if n_num != item.num:  # pragma: no cover
-                raise errors.InternalError(
-                    "Blockwise num acknowledged error, expected " + str(item.num) + " received " +
-                    str(n_num))
+            if n_num != item.num:
+                raise errors.InternalError(msg=f"Block num acknowledged error, expected {item.num} received {n_num}",
+                                           response_code=defines.Code.REQUEST_ENTITY_INCOMPLETE,
+                                           transaction=transaction, related=defines.MessageRelated.RESPONSE)
             if n_size < item.size:
                 logger.debug("Scale down size, was " + str(item.size) + " become " + str(n_size))
                 item.size = n_size
@@ -246,13 +245,15 @@ class BlockLayer(object):
                 if key_token in self._block2_sent:
                     item = self._block2_sent[key_token]
                     if num != item.num:
-                        raise errors.InternalError("Receive unwanted block", defines.Code.REQUEST_ENTITY_INCOMPLETE,
+                        raise errors.InternalError(msg="Receive unwanted block",
+                                                   response_code=defines.Code.REQUEST_ENTITY_INCOMPLETE,
                                                    transaction=transaction, related=defines.MessageRelated.RESPONSE)
 
                     if item.content_type is None:
                         item.content_type = transaction.response.content_type
                     if item.content_type != transaction.response.content_type:
-                        raise errors.InternalError("Content-type Error", defines.Code.UNSUPPORTED_CONTENT_FORMAT,
+                        raise errors.InternalError(msg="Content-type Error",
+                                                   response_code=defines.Code.UNSUPPORTED_CONTENT_FORMAT,
                                                    transaction=transaction, related=defines.MessageRelated.RESPONSE)
                     item.byte += size
                     item.num = num + 1
@@ -269,7 +270,8 @@ class BlockLayer(object):
                     if self._block2_sent[key_token].content_type is None:
                         self._block2_sent[key_token].content_type = transaction.response.content_type
                     if self._block2_sent[key_token].content_type != transaction.response.content_type:
-                        raise errors.InternalError("Content-type Error", defines.Code.UNSUPPORTED_CONTENT_FORMAT,
+                        raise errors.InternalError(msg="Content-type Error",
+                                                   response_code=defines.Code.UNSUPPORTED_CONTENT_FORMAT,
                                                    transaction=transaction, related=defines.MessageRelated.RESPONSE)
                     del self._block2_sent[key_token]
 

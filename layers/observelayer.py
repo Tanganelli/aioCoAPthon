@@ -52,8 +52,7 @@ class ObserveLayer(object):
             try:
                 host, port = request.destination
             except AttributeError as e:  # pragma: no cover
-                raise errors.InternalError("Request destination cannot be computed",
-                                           defines.Code.INTERNAL_SERVER_ERROR, e)
+                raise errors.CoAPException("Request destination cannot be computed")
 
             key_token = utils.str_append_hash(host, port, request.token)
 
@@ -73,8 +72,7 @@ class ObserveLayer(object):
         try:
             host, port = transaction.response.source
         except AttributeError as e:  # pragma: no cover
-            raise errors.InternalError("Message source cannot be computed",
-                                       defines.Code.INTERNAL_SERVER_ERROR, e, transaction=transaction)
+            raise errors.CoAPException("Message source cannot be computed")
         key_token = utils.str_append_hash(host, port, transaction.response.token)
 
         if key_token in self._relations and transaction.response.type == defines.Type.CON:
@@ -93,8 +91,7 @@ class ObserveLayer(object):
         try:
             host, port = message.destination
         except AttributeError as e:  # pragma: no cover
-            raise errors.InternalError("Message destination cannot be computed",
-                                       defines.Code.INTERNAL_SERVER_ERROR, e)
+            raise errors.CoAPException("Message destination cannot be computed")
         key_token = utils.str_append_hash(host, port, message.token)
         if key_token in self._relations and message.type == defines.Type.RST:
             del self._relations[key_token]
@@ -116,8 +113,7 @@ class ObserveLayer(object):
             try:
                 host, port = transaction.request.source
             except AttributeError as e:  # pragma: no cover
-                raise errors.InternalError("Request Source cannot be computed",
-                                           defines.Code.INTERNAL_SERVER_ERROR, e, transaction=transaction)
+                raise errors.CoAPException("Request Source cannot be computed")
 
             key_token = utils.str_append_hash(host, port, transaction.request.token)
 
@@ -153,8 +149,7 @@ class ObserveLayer(object):
             try:
                 host, port = transaction.request.source
             except AttributeError as e:  # pragma: no cover
-                raise errors.InternalError("Request Source cannot be computed",
-                                           defines.Code.INTERNAL_SERVER_ERROR, e, transaction=transaction)
+                raise errors.CoAPException("Request Source cannot be computed")
 
             key_token = utils.str_append_hash(host, port, transaction.request.token)
             logger.info("Remove Subscriber")
@@ -176,8 +171,7 @@ class ObserveLayer(object):
         try:
             host, port = transaction.request.source
         except AttributeError as e:  # pragma: no cover
-            raise errors.InternalError("Request source cannot be computed",
-                                       defines.Code.INTERNAL_SERVER_ERROR, e, transaction=transaction)
+            raise errors.CoAPException("Request source cannot be computed")
 
         key_token = utils.str_append_hash(host, port, transaction.request.token)
         if key_token in self._relations:
@@ -261,9 +255,8 @@ class ObserveLayer(object):
         logger.debug("Remove Subcriber")
         try:
             host, port = message.destination
-        except AttributeError as e:  # pragma: no cover
-            raise errors.InternalError("Message destination cannot be computed",
-                                       defines.Code.INTERNAL_SERVER_ERROR, e)
+        except AttributeError:  # pragma: no cover
+            raise errors.CoAPException("Message destination cannot be computed")
         key_token = utils.str_append_hash(host, port, message.token)
         try:
             del self._relations[key_token]

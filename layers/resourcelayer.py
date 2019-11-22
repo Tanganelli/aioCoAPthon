@@ -88,9 +88,9 @@ class ResourceLayer(object):
                 resource_rep, response = ret
 
             else:  # pragma: no cover
-                raise errors.InternalError("Resource handler is not correctly implemented",
-                                           defines.Code.INTERNAL_SERVER_ERROR, transaction=transaction,
-                                           related=defines.MessageRelated.REQUEST)
+                raise errors.InternalError(msg="Resource handler is not correctly implemented",
+                                           response_code=defines.Code.INTERNAL_SERVER_ERROR,
+                                           transaction=transaction, related=defines.MessageRelated.REQUEST)
 
             # Accept
             if transaction.request.accept is not None and response.content_type is not None \
@@ -116,9 +116,9 @@ class ResourceLayer(object):
             transaction.response.payload = "GET method is not allowed."
             return transaction
         except Exception:  # pragma: no cover
-            raise errors.InternalError("Resource handler is not correctly implemented",
-                                       defines.Code.INTERNAL_SERVER_ERROR, transaction=transaction,
-                                       related=defines.MessageRelated.REQUEST)
+            raise errors.InternalError(msg="Resource handler is not correctly implemented",
+                                       response_code=defines.Code.INTERNAL_SERVER_ERROR,
+                                       transaction=transaction, related=defines.MessageRelated.REQUEST)
 
     @classmethod
     async def put_resource(cls, transaction: Transaction, resource: Resource) -> Transaction:
@@ -152,8 +152,9 @@ class ResourceLayer(object):
                 ret = await cls.call_method(callback, request=transaction.request, response=transaction.response)
                 resource_rep, response = ret
             else:  # pragma: no cover
-                raise errors.InternalError("Resource handler is not correctly implemented",
-                                           defines.Code.INTERNAL_SERVER_ERROR, transaction=transaction)
+                raise errors.InternalError(msg="Resource handler is not correctly implemented",
+                                           response_code=defines.Code.INTERNAL_SERVER_ERROR,
+                                           transaction=transaction, related=defines.MessageRelated.REQUEST)
 
             transaction.resource, transaction.response = resource_rep, response
             transaction.resource.changed = True
@@ -167,9 +168,10 @@ class ResourceLayer(object):
             transaction.response.clear_options()
             transaction.response.payload = "PUT method is not allowed."
         except Exception:  # pragma: no cover
-            raise errors.InternalError("Resource handler is not correctly implemented",
-                                       defines.Code.INTERNAL_SERVER_ERROR, transaction=transaction,
-                                       related=defines.MessageRelated.REQUEST)
+            raise errors.InternalError(msg="Resource handler is not correctly implemented",
+                                       response_code=defines.Code.INTERNAL_SERVER_ERROR,
+                                       transaction=transaction, related=defines.MessageRelated.REQUEST)
+
         return transaction
 
     @classmethod
@@ -204,8 +206,9 @@ class ResourceLayer(object):
                 ret = await cls.call_method(callback, request=transaction.request, response=transaction.response)
                 resource_rep, response = ret
             else:  # pragma: no cover
-                raise errors.InternalError("Resource handler is not correctly implemented",
-                                           defines.Code.INTERNAL_SERVER_ERROR, transaction=transaction)
+                raise errors.InternalError(msg="Resource handler is not correctly implemented",
+                                           response_code=defines.Code.INTERNAL_SERVER_ERROR,
+                                           transaction=transaction, related=defines.MessageRelated.REQUEST)
 
             transaction.resource, transaction.response = resource_rep, response
             transaction.resource.changed = True
@@ -219,9 +222,9 @@ class ResourceLayer(object):
             transaction.response.clear_options()
             transaction.response.payload = "POST method is not allowed."
         except Exception:  # pragma: no cover
-            raise errors.InternalError("Resource handler is not correctly implemented",
-                                       defines.Code.INTERNAL_SERVER_ERROR, transaction=transaction,
-                                       related=defines.MessageRelated.REQUEST)
+            raise errors.InternalError(msg="Resource handler is not correctly implemented",
+                                       response_code=defines.Code.INTERNAL_SERVER_ERROR,
+                                       transaction=transaction, related=defines.MessageRelated.REQUEST)
 
         return transaction
 
@@ -259,8 +262,9 @@ class ResourceLayer(object):
                 ret = await cls.call_method(callback, request=transaction.request, response=transaction.response)
                 deleted, response = ret
             else:  # pragma: no cover
-                raise errors.InternalError("Resource handler is not correctly implemented",
-                                           defines.Code.INTERNAL_SERVER_ERROR, transaction=transaction)
+                raise errors.InternalError(msg="Resource handler is not correctly implemented",
+                                           response_code=defines.Code.INTERNAL_SERVER_ERROR,
+                                           transaction=transaction, related=defines.MessageRelated.REQUEST)
 
             transaction.response = response
             transaction.resource = resource
@@ -279,9 +283,9 @@ class ResourceLayer(object):
             transaction.response.payload = "GET method is not allowed."
             return transaction
         except Exception:  # pragma: no cover
-            raise errors.InternalError("Resource handler is not correctly implemented",
-                                       defines.Code.INTERNAL_SERVER_ERROR, transaction=transaction,
-                                       related=defines.MessageRelated.REQUEST)
+            raise errors.InternalError(msg="Resource handler is not correctly implemented",
+                                       response_code=defines.Code.INTERNAL_SERVER_ERROR,
+                                       transaction=transaction, related=defines.MessageRelated.REQUEST)
 
     @staticmethod
     def valid(query, attributes, path):

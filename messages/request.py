@@ -152,7 +152,7 @@ class Request(Message):
             option.value = value
             self.add_option(option)
         except ValueError:
-            raise errors.MessageValueError("Unknown Accept value")
+            raise errors.CoAPException("Unknown Accept value")
 
     @accept.deleter
     def accept(self):

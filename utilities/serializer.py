@@ -32,14 +32,14 @@ class Serializer(object):
             return data, value
         elif value == 13:
             if len(data) < 1:
-                raise errors.MessageFormatError("Option ended prematurely", defines.Code.BAD_REQUEST)
+                raise errors.CoAPException("Option ended prematurely")
             return data[1:], data[0] + 13
         elif value == 14:
             if len(data) < 2:
-                raise errors.MessageFormatError("Malformed option", defines.Code.BAD_REQUEST)
+                raise errors.CoAPException("Malformed option")
             return data[2:], int.from_bytes(data[:2], 'big') + 269
         else:
-            raise errors.MessageFormatError("Malformed option", defines.Code.BAD_REQUEST)
+            raise errors.CoAPException("Malformed option")
 
     @classmethod
     def _deserialize_options(cls, data: bytes) -> Tuple[bytes, List[Option]]:
@@ -99,7 +99,7 @@ class Serializer(object):
         try:
             (vttkl, code, mid) = struct.unpack('!BBH', datagram[:4])
         except struct.error:
-            raise errors.MessageFormatError("Message too short for CoAP")
+            raise errors.CoAPException("Message too short for CoAP")
 
         datagram = datagram[4:]
         version = int((vttkl & 0xC0) >> 6)
@@ -146,8 +146,8 @@ class Serializer(object):
             message.token = None
         try:
             datagram, options = cls._deserialize_options(datagram[tkl:])
-        except errors.MessageFormatError as e:
-            raise errors.MessageFormatError(e.msg, e.response_code, mid)
+        except errors.CoAPException as e:
+            raise errors.MessageFormatError(e.msg, defines.Code.BAD_REQUEST, mid)
         message.add_options(options)
         if len(datagram) == 1:
             raise errors.MessageFormatError("Payload Marker with no payload", defines.Code.BAD_REQUEST, mid)
@@ -170,7 +170,7 @@ class Serializer(object):
         elif 269 <= value < 65804:
             return 14, (value - 269).to_bytes(2, 'big'), "cc"
         else:
-            raise errors.MessageFormatError("Delta or Length value out of range.")
+            raise errors.CoAPException("Delta or Length value out of range.")
 
     @classmethod
     def _serialize_options(cls, options: List[Option]) -> Tuple[List[bytes], str]:
@@ -223,7 +223,7 @@ class Serializer(object):
         if message.destination is None:
             message.destination = destination
         if message.code is None or message.type is None or message.mid is None:
-            raise errors.MessageFormatError("Code, Message Type and Message ID must not be None.")
+            raise errors.CoAPException("Code, Message Type and Message ID must not be None.")
         fmt = "!BBH"
 
         if message.token is None:
@@ -263,5 +263,5 @@ class Serializer(object):
             s.pack_into(datagram, 0, *data)
         except struct.error:
             print("fmt: {0}, {1}".format(fmt, data))
-            raise errors.MessageFormatError("Message cannot be serialized.")
+            raise errors.CoAPException("Message cannot be serialized.")
         return datagram

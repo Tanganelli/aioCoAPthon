@@ -60,7 +60,7 @@ class MessageLayer(object):
         try:
             host, port = request.source
         except TypeError or AttributeError:  # pragma: no cover
-            raise errors.InternalError("Request Source cannot be computed")
+            raise errors.CoAPException("Request Source cannot be computed")
         key_mid = utils.str_append_hash(host, port, request.mid)
         key_token = utils.str_append_hash(host, port, request.token)
 
@@ -69,6 +69,9 @@ class MessageLayer(object):
             from_token = self._transactions_token.get(key_token, None)
             if from_token is None:
                 logger.warning("Duplicated message with different Token")
+                raise errors.InternalError(msg=f"Tokens does not match -  response message {host}:{port}",
+                                           response_code=defines.Code.INTERNAL_SERVER_ERROR,
+                                           transaction=transaction, related=defines.MessageRelated.REQUEST)
             transaction.request.duplicated = True
         else:
             request.timestamp = time.time()
@@ -90,7 +93,7 @@ class MessageLayer(object):
         try:
             host, port = response.source
         except TypeError or AttributeError:  # pragma: no cover
-            raise errors.InternalError("Response Source cannot be computed")
+            raise errors.CoAPException("Response Source cannot be computed")
 
         key_mid = utils.str_append_hash(host, port, response.mid)
         key_mid_multicast = utils.str_append_hash(defines.ALL_COAP_NODES, port, response.mid)
@@ -99,7 +102,8 @@ class MessageLayer(object):
         if key_mid in list(self._transactions.keys()):
             transaction = self._transactions[key_mid]
             if response.token != transaction.request.token:
-                raise errors.InternalError("Tokens does not match -  response message " + str(host) + ":" + str(port))
+                logger.warning(f"Tokens does not match -  response message {host}:{port}")
+                raise errors.CoAPException(msg=f"Tokens does not match -  response message {host}:{port}")
         elif key_token in self._transactions_token:
             transaction = self._transactions_token[key_token]
         elif key_mid_multicast in list(self._transactions.keys()):
@@ -107,9 +111,10 @@ class MessageLayer(object):
         elif key_token_multicast in self._transactions_token:
             transaction = self._transactions_token[key_token_multicast]
             if response.token != transaction.request.token:
-                raise errors.InternalError("Tokens does not match -  response message " + str(host) + ":" + str(port))
+                logger.warning(f"Tokens does not match -  response message {host}:{port}")
+                raise errors.CoAPException(msg=f"Tokens does not match -  response message {host}:{port}")
         else:
-            raise errors.InternalError("Un-Matched incoming response message " + str(host) + ":" + str(port))
+            raise errors.CoAPException("Un-Matched incoming response message " + str(host) + ":" + str(port))
 
         transaction.request.acknowledged = True
         transaction.response = response
@@ -133,7 +138,7 @@ class MessageLayer(object):
         try:
             host, port = message.source
         except TypeError or AttributeError:  # pragma: no cover
-            raise errors.InternalError("Request Source cannot be computed")
+            raise errors.CoAPException("Request Source cannot be computed")
 
         key_mid = utils.str_append_hash(host, port, message.mid)
         key_mid_multicast = utils.str_append_hash(defines.ALL_COAP_NODES, port, message.mid)
@@ -148,11 +153,11 @@ class MessageLayer(object):
         transaction = self._transactions_token.get(key_token_multicast, None)
         in_memory.append((transaction, key_token_multicast))
         valid = list(filter(lambda x: x[0] is not None, in_memory))
-        if len(valid) == 0:
+        if len(valid) == 0:  # pragma: no cover
             logger.warning("Un-Matched incoming empty message fom {0}:{1} with MID {2}".format(host, port,
                                                                                                message.mid))
-            raise errors.SilentIgnore("Un-Matched incoming empty message fom {0}:{1} with MID {2}"
-                                      .format(host, port, message.mid), message=message)
+            raise errors.PongException("Un-Matched incoming empty message fom {0}:{1} with MID {2}"
+                                       .format(host, port, message.mid), message=message)
         else:
             transaction, key = valid[0]
 
@@ -166,13 +171,13 @@ class MessageLayer(object):
                 transaction.request.rejected = True
             elif not transaction.response.acknowledged:
                 transaction.response.rejected = True
-        elif message.type == defines.Type.CON:
+        elif message.type == defines.Type.CON:  # pragma: no cover
             # implicit ACK (might have been lost)
             logger.debug("Implicit ACK on received CON for waiting transaction")
             transaction.request.acknowledged = True
-        else:
+        else:  # pragma: no cover
             logger.warning("Unhandled message type...")
-            raise errors.SilentIgnore("Unhandled message type...")
+            raise errors.CoAPException("Unhandled message type...")
 
         transaction.retransmit_stop = True
         if transaction.retransmit_task is not None:
@@ -204,7 +209,7 @@ class MessageLayer(object):
         try:
             host, port = request.destination
         except TypeError or AttributeError:  # pragma: no cover
-            raise errors.InternalError("Request destination cannot be computed")
+            raise errors.CoAPException("Request destination cannot be computed")
 
         request.timestamp = time.time()
         transaction = Transaction(request=request, timestamp=request.timestamp, origin=defines.Origin.LOCAL)
@@ -251,7 +256,7 @@ class MessageLayer(object):
         try:
             host, port = transaction.response.destination
         except TypeError or AttributeError:  # pragma: no cover
-            raise errors.InternalError("Response destination cannot be computed")
+            raise errors.CoAPException("Response destination cannot be computed")
 
         logger.debug("send_response - {0}".format(transaction.response))
 
@@ -289,8 +294,8 @@ class MessageLayer(object):
                     transaction.request.acknowledged = True
                 elif msg_type == defines.Type.RST:
                     transaction.request.rejected = True
-                else:
-                    raise errors.InternalError("Only ACK and RST can be sent empty. For ping use the ping function.")
+                else:  # pragma: no cover
+                    raise errors.CoAPException("Only ACK and RST can be sent empty. For ping use the ping function.")
                 transaction.completed = True
                 message.type = msg_type
                 message.mid = transaction.request.mid
@@ -303,13 +308,13 @@ class MessageLayer(object):
                 message.mid = transaction.request.mid
                 message.code = defines.Code.EMPTY
                 message.destination = transaction.request.source
-            else:
-                raise errors.InternalError("NON messages cannot be replied with ACKs")
+            else:  # pragma: no cover
+                raise errors.CoAPException("NON messages cannot be replied with ACKs")
 
             try:
                 host, port = transaction.request.source
             except TypeError or AttributeError:  # pragma: no cover
-                raise errors.InternalError("Response destination cannot be computed")
+                raise errors.CoAPException("Response destination cannot be computed")
             key_mid = utils.str_append_hash(host, port, transaction.request.mid)
             key_token = utils.str_append_hash(host, port, transaction.request.token)
             self._transactions[key_mid] = transaction
@@ -321,8 +326,8 @@ class MessageLayer(object):
                     transaction.response.acknowledged = True
                 elif msg_type == defines.Type.RST:
                     transaction.response.rejected = True
-                else:
-                    raise errors.InternalError("Only ACK and RST can be sent empty in reply to a response")
+                else:  # pragma: no cover
+                    raise errors.CoAPException("Only ACK and RST can be sent empty in reply to a response")
                 transaction.completed = True
                 message.type = msg_type
                 message.mid = transaction.response.mid
@@ -335,13 +340,13 @@ class MessageLayer(object):
                 message.mid = transaction.response.mid
                 message.code = defines.Code.EMPTY
                 message.destination = transaction.response.source
-            else:
-                raise errors.InternalError("NON messages cannot be replied with ACKs")
+            else:  # pragma: no cover
+                raise errors.CoAPException("NON messages cannot be replied with ACKs")
 
             try:
                 host, port = transaction.response.source
             except TypeError or AttributeError:  # pragma: no cover
-                raise errors.InternalError("Response destination cannot be computed")
+                raise errors.CoAPException("Response destination cannot be computed")
             key_mid = utils.str_append_hash(host, port, transaction.response.mid)
             key_token = utils.str_append_hash(host, port, transaction.response.token)
             self._transactions[key_mid] = transaction
@@ -357,7 +362,7 @@ class MessageLayer(object):
             try:
                 host, port = message.destination
             except TypeError or AttributeError:  # pragma: no cover
-                raise errors.InternalError("Message destination cannot be computed")
+                raise errors.CoAPException("Message destination cannot be computed")
 
             key_mid = utils.str_append_hash(host, port, message.mid)
             key_token = utils.str_append_hash(host, port, message.token)

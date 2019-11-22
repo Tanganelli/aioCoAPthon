@@ -84,17 +84,17 @@ class Option(object):
             elif isinstance(value, bytes):
                 self._raw_value = value
             else:
-                raise errors.OptionFormatError("Invalid value for option. UINT options only accept int and bytes")
+                raise errors.CoAPException("Invalid value for option. UINT options only accept int and bytes")
         elif self._type.format == OptionType.STRING:
             if isinstance(value, str):
                 try:
                     self._raw_value = value.encode("utf-8")
                 except UnicodeEncodeError:
-                    raise errors.OptionFormatError("Invalid value for option. Value is not UTF-8")
+                    raise errors.CoAPException("Invalid value for option. Value is not UTF-8")
             elif isinstance(value, bytes):
                 self._raw_value = value
             else:
-                raise errors.OptionFormatError("Invalid value for option. STRING options only accept strings and bytes")
+                raise errors.CoAPException("Invalid value for option. STRING options only accept strings and bytes")
         elif self._type.format == OptionType.OPAQUE:
             if value is None:
                 value = bytes()
@@ -104,11 +104,11 @@ class Option(object):
                 try:
                     self._raw_value = value.encode("utf-8")
                 except UnicodeEncodeError:
-                    raise errors.OptionFormatError("Invalid value for option. Value is not UTF-8")
+                    raise errors.CoAPException("Invalid value for option. Value is not UTF-8")
             elif isinstance(value, int):
                 self._raw_value = value.to_bytes(length=utils.byte_len(value), byteorder="big", signed=False)
         else:
-            raise errors.OptionFormatError("Unknown option format")
+            raise errors.CoAPException("Unknown option format")
 
     @property
     def length(self) -> int:

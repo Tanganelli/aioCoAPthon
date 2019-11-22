@@ -51,7 +51,7 @@ class Message(object):
         :raise AttributeError: if value is not 1
         """
         if not isinstance(v, int) or v != 1:
-            raise errors.MessageValueError("Only CoAP version 1 is supported")
+            raise errors.CoAPException("Only CoAP version 1 is supported")
         self._version = v
 
     @property
@@ -78,7 +78,7 @@ class Message(object):
             try:
                 self._type = defines.Type(value)
             except ValueError:
-                raise errors.MessageValueError("Unsupported message type")
+                raise errors.CoAPException("Unsupported message type")
 
     @property
     def mid(self) -> int:
@@ -99,7 +99,7 @@ class Message(object):
         :raise AttributeError: if value is not int or cannot be represented on 16 bits.
         """
         if not isinstance(value, int) or value > 65536:
-            raise errors.MessageValueError("MID must be between 0 and 65536")
+            raise errors.CoAPException("MID must be between 0 and 65536")
         self._mid = value
 
     @mid.deleter
@@ -134,7 +134,7 @@ class Message(object):
         elif isinstance(value, bytes) and len(value) < 256:
             self._token = value
         else:
-            raise errors.MessageValueError("Invalid token")
+            raise errors.CoAPException("Invalid token")
 
     @token.deleter
     def token(self):
@@ -166,7 +166,7 @@ class Message(object):
         if isinstance(value, list):
             self._options = value
         else:
-            raise errors.MessageValueError("Invalid option list")
+            raise errors.CoAPException("Invalid option list")
 
     @property
     def payload(self) -> utils.CoAPPayload:
@@ -193,7 +193,7 @@ class Message(object):
         elif isinstance(value, utils.CoAPPayload):
             self._payload.payload = value.payload
         else:
-            raise errors.MessageValueError("Payload must be bytes, str or None")
+            raise errors.CoAPException("Payload must be bytes, str or None")
 
     @property
     def destination(self) -> Optional[Tuple[Union[ipaddress.IPv4Address, ipaddress.IPv6Address], int]]:
@@ -218,13 +218,13 @@ class Message(object):
             self._destination = None
             return
         elif not isinstance(value, tuple) or len(value) != 2:
-            raise errors.MessageValueError("Invalid destination")
+            raise errors.CoAPException("Invalid destination")
 
         host, port = value
         try:
             host = ipaddress.ip_address(host)
         except ipaddress.AddressValueError:
-            raise errors.MessageValueError("Invalid destination")
+            raise errors.CoAPException("Invalid destination")
         self._destination = host, port
 
     @property
@@ -250,13 +250,13 @@ class Message(object):
             self._source = None
             return
         elif not isinstance(value, tuple) or len(value) != 2:
-            raise errors.MessageValueError("Invalid source")
+            raise errors.CoAPException("Invalid source")
 
         host, port = value
         try:
             host = ipaddress.ip_address(host)
         except ipaddress.AddressValueError:
-            raise errors.MessageValueError("Invalid source")
+            raise errors.CoAPException("Invalid source")
 
         self._source = host, port
 
@@ -422,7 +422,7 @@ class Message(object):
         if not option.type.repeatable:
             ret = self._already_in(option)
             if ret:
-                raise errors.MessageValueError("Option {0} is not repeatable".format(option.name))
+                raise errors.CoAPException("Option {0} is not repeatable".format(option.name))
             else:
                 self._options.append(option)
         else:
@@ -502,7 +502,7 @@ class Message(object):
             if isinstance(e, bytes):
                 option.value = e
             else:
-                raise errors.MessageValueError("ETAG must be Opaque")
+                raise errors.CoAPException("ETAG must be Opaque")
             self.add_option(option)
 
     @etag.deleter
@@ -526,7 +526,7 @@ class Message(object):
                 try:
                     value = defines.ContentType(option.value)
                 except ValueError:
-                    raise errors.MessageValueError("Unknown Content Type")
+                    raise errors.CoAPException("Unknown Content Type")
         return value
 
     @content_type.setter
@@ -544,7 +544,7 @@ class Message(object):
             try:
                 option.value = defines.ContentType(content_type)
             except ValueError:
-                raise errors.MessageValueError("Unknown Content Type")
+                raise errors.CoAPException("Unknown Content Type")
         self.add_option(option)
 
     @content_type.deleter
