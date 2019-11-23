@@ -33,8 +33,14 @@ def parse_blockwise(value: int) -> Tuple[int, int, int]:
     :return: num, m, size
     """
 
+    if isinstance(value, bytes):
+        value = 0
     length = byte_len(value)
-    if length == 1:
+    if length == 0:
+        num = 0
+        m = 0
+        size = 0
+    elif length == 1:
         num = value & 0xF0
         num >>= 4
         m = value & 0x08
