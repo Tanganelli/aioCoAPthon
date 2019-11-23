@@ -113,7 +113,7 @@ class CoAPProtocol(object):
         if registed:
             try:
                 self._loop.remove_reader(fd)
-            except ValueError:
+            except ValueError:  # pragma: no cover
                 return
         try:
             data, addr = self._socket.recvfrom(defines.RECEIVING_BUFFER)
@@ -130,13 +130,13 @@ class CoAPProtocol(object):
         if registed:
             try:
                 self._loop.remove_writer(fd)
-            except ValueError:
+            except ValueError:  # pragma: no cover
                 return
         if not data:
             return
         try:
             n = self._socket.sendto(data, addr)
-        except (BlockingIOError, InterruptedError):
+        except (BlockingIOError, InterruptedError):  # pragma: no cover
             self._loop.add_writer(fd, self.sendto, data, addr, fut, True)
         else:
             fut.set_result(n)
@@ -146,6 +146,7 @@ class CoAPProtocol(object):
         data, addr = await self.recvfrom()
         try:
             transaction, msg_type = await self._handle_datagram(data, addr)
+            await self.handle_message(transaction, msg_type)
         except errors.PongException as e:
             if e.message is not None:
                 # check if it is ping
@@ -190,97 +191,109 @@ class CoAPProtocol(object):
             transaction = await self._messageLayer.send_response(e.transaction)
             await self._send_datagram(transaction.response)
             logger.error(e.msg)
+        except errors.ObserveError as e:
+            if e.transaction is not None:
+                if e.transaction.separate_task is not None:
+                    e.transaction.separate_task.cancel()
+                    del e.transaction.separate_task
+                e.transaction.response.payload = e.msg
+                e.transaction.response.clear_options()
+                e.transaction.response.type = defines.Type.CON
+                e.transaction.response.code = e.response_code
+                e.transaction = await self._messageLayer.send_response(e.transaction)
+                await self._send_datagram(e.transaction.response)
+                logger.error("Observe Error")
         except errors.CoAPException as e:
             logger.error(e.msg)
         except Exception as e:
             logger.exception(e)
-        else:
-            results = await asyncio.gather(self.handle_message(transaction, msg_type), return_exceptions=True)
-            for e in results:
-                if isinstance(e, errors.ProtocolError):
-                    '''
-                       From RFC 7252, Section 4.2
-                       reject the message if the recipient
-                       lacks context to process the message properly, including situations
-                       where the message is Empty, uses a code with a reserved class (1, 6,
-                       or 7), or has a message format error.  Rejecting a Confirmable
-                       message is effected by sending a matching Reset message and otherwise
-                       ignoring it.
-
-                       From RFC 7252, Section 4.3
-                       A recipient MUST reject the message
-                       if it lacks context to process the message properly, including the
-                       case where the message is Empty, uses a code with a reserved class
-                       (1, 6, or 7), or has a message format error.  Rejecting a Non-
-                       confirmable message MAY involve sending a matching Reset message
-                    '''
-                    rst = Message()
-                    rst.destination = addr
-                    rst.type = defines.Type.RST
-                    rst.mid = e.mid
-                    rst.payload = e.msg
-                    await self._send_datagram(rst)
-                elif isinstance(e, errors.PongException):
-                    if e.message is not None:
-                        # check if it is ping
-                        if e.message.type == defines.Type.CON:
-                            rst = Message()
-                            rst.destination = addr
-                            rst.type = defines.Type.RST
-                            rst.mid = e.message.mid
-                            await self._send_datagram(rst)
-                elif isinstance(e, errors.InternalError):
-                    if e.transaction.separate_task is not None:
-                        e.transaction.separate_task.cancel()
-                        del e.transaction.separate_task
-                    rst = Message()
-                    rst.destination = addr
-                    rst.type = defines.Type.RST
-                    rst.code = e.response_code
-
-                    if e.related == defines.MessageRelated.REQUEST:
-                        rst.mid = e.transaction.request.mid
-                        rst.token = e.transaction.request.token
-                    elif e.related == defines.MessageRelated.RESPONSE:
-                        rst.mid = e.transaction.response.mid
-                        rst.token = e.transaction.response.token
-
-                    rst.payload = e.msg
-                    await self._send_datagram(rst)
-                    if e.exception is not None:
-                        logger.exception(e)
-                    logger.error(e.msg)
-                elif isinstance(e, errors.ObserveError):
-                    if e.transaction is not None:
-                        if e.transaction.separate_task is not None:
-                            e.transaction.separate_task.cancel()
-                            del e.transaction.separate_task
-                        e.transaction.response.payload = e.msg
-                        e.transaction.response.clear_options()
-                        e.transaction.response.type = defines.Type.CON
-                        e.transaction.response.code = e.response_code
-                        e.transaction = await self._messageLayer.send_response(e.transaction)
-                        await self._send_datagram(e.transaction.response)
-                        logger.error("Observe Error")
-                elif isinstance(e, Exception):
-                    logger.exception(e)
+        # else:
+        #     results = await asyncio.gather(self.handle_message(transaction, msg_type), return_exceptions=True)
+        #     for e in results:
+        #         if isinstance(e, errors.ProtocolError):
+        #             '''
+        #                From RFC 7252, Section 4.2
+        #                reject the message if the recipient
+        #                lacks context to process the message properly, including situations
+        #                where the message is Empty, uses a code with a reserved class (1, 6,
+        #                or 7), or has a message format error.  Rejecting a Confirmable
+        #                message is effected by sending a matching Reset message and otherwise
+        #                ignoring it.
+        #
+        #                From RFC 7252, Section 4.3
+        #                A recipient MUST reject the message
+        #                if it lacks context to process the message properly, including the
+        #                case where the message is Empty, uses a code with a reserved class
+        #                (1, 6, or 7), or has a message format error.  Rejecting a Non-
+        #                confirmable message MAY involve sending a matching Reset message
+        #             '''
+        #             rst = Message()
+        #             rst.destination = addr
+        #             rst.type = defines.Type.RST
+        #             rst.mid = e.mid
+        #             rst.payload = e.msg
+        #             await self._send_datagram(rst)
+        #         elif isinstance(e, errors.PongException):
+        #             if e.message is not None:
+        #                 # check if it is ping
+        #                 if e.message.type == defines.Type.CON:
+        #                     rst = Message()
+        #                     rst.destination = addr
+        #                     rst.type = defines.Type.RST
+        #                     rst.mid = e.message.mid
+        #                     await self._send_datagram(rst)
+        #         elif isinstance(e, errors.InternalError):
+        #             if e.transaction.separate_task is not None:
+        #                 e.transaction.separate_task.cancel()
+        #                 del e.transaction.separate_task
+        #             rst = Message()
+        #             rst.destination = addr
+        #             rst.type = defines.Type.RST
+        #             rst.code = e.response_code
+        #
+        #             if e.related == defines.MessageRelated.REQUEST:
+        #                 rst.mid = e.transaction.request.mid
+        #                 rst.token = e.transaction.request.token
+        #             elif e.related == defines.MessageRelated.RESPONSE:
+        #                 rst.mid = e.transaction.response.mid
+        #                 rst.token = e.transaction.response.token
+        #
+        #             rst.payload = e.msg
+        #             await self._send_datagram(rst)
+        #             if e.exception is not None:
+        #                 logger.exception(e)
+        #             logger.error(e.msg)
+        #         elif isinstance(e, errors.ObserveError):
+        #             if e.transaction is not None:
+        #                 if e.transaction.separate_task is not None:
+        #                     e.transaction.separate_task.cancel()
+        #                     del e.transaction.separate_task
+        #                 e.transaction.response.payload = e.msg
+        #                 e.transaction.response.clear_options()
+        #                 e.transaction.response.type = defines.Type.CON
+        #                 e.transaction.response.code = e.response_code
+        #                 e.transaction = await self._messageLayer.send_response(e.transaction)
+        #                 await self._send_datagram(e.transaction.response)
+        #                 logger.error("Observe Error")
+        #         elif isinstance(e, Exception):
+        #             logger.exception(e)
 
     async def _handle_datagram(self, data, addr):
         message = await self._serializer.deserialize(data, source=addr)
         if isinstance(message, Request):
-            if message.type == defines.Type.RST or message.type == defines.Type.ACK:
+            if message.type == defines.Type.RST or message.type == defines.Type.ACK:  # pragma: no cover
                 raise errors.ProtocolError("Request cannot be carried in RST or ACK messages",
                                            message.mid)
             transaction = await self._messageLayer.receive_request(message)
             return transaction, message
         elif isinstance(message, Response):
-            if message.type == defines.Type.RST:
+            if message.type == defines.Type.RST:  # pragma: no cover
                 raise errors.ProtocolError("Responses cannot be carried in RST messages",
                                            message.mid)
             transaction = await self._messageLayer.receive_response(message)
             return transaction, message
         elif isinstance(message, Message):
-            if message.type == defines.Type.NON:
+            if message.type == defines.Type.NON:  # pragma: no cover
                 '''
                    From RFC 7252, Section 4.3
                    A Non-confirmable message always carries either a request or response and
@@ -367,7 +380,7 @@ class CoAPProtocol(object):
                 transaction.response = message
             async with transaction.response_wait:
                 transaction.response_wait.notify()
-        else:
+        else:  # pragma: no cover
             raise errors.CoAPException("Unknown Message type")
 
     @property
@@ -435,7 +448,7 @@ class CoAPProtocol(object):
                 logger.debug("send ack")
                 transaction, ack = await self._messageLayer.send_empty(transaction, defines.MessageRelated.REQUEST)
                 await self._send_datagram(ack)
-        except asyncio.CancelledError:
+        except asyncio.CancelledError:  # pragma: no cover
             logger.debug("_send_ack cancelled")
 
     @staticmethod

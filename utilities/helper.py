@@ -8,7 +8,7 @@ from utilities import defines
 __author__ = 'Giacomo Tanganelli'
 
 
-class Helper(object):
+class Helper(object):  # pragma: no cover
     def __init__(self, sender_function: Callable, receive_function: Callable):
         self.send_request = sender_function
         self.receive_response = receive_function
@@ -105,7 +105,7 @@ class Helper(object):
     async def delete(self, request, callback, timeout):
         return await self.get(request, callback, timeout)
 
-    async def observe(self, request, callback=None, queue=None, stop=None, timeout=None, **kwargs):
+    async def observe(self, request, callback=None, queue=None, stop=None, timeout=None, **kwargs):  # pragma: no cover
         transaction = await self.send_request(request)
         response = await self.receive_response(transaction, timeout)
 
