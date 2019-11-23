@@ -207,10 +207,7 @@ class Message(object):
         :param value: (ip, port)
         :raise AttributeError: if value is not a ip and a port.
         """
-        if value is None:
-            self._destination = None
-            return
-        elif not isinstance(value, tuple) or len(value) != 2:  # pragma: no cover
+        if not isinstance(value, tuple) or len(value) != 2:  # pragma: no cover
             raise errors.CoAPException("Invalid destination")
 
         host, port = value
@@ -248,7 +245,7 @@ class Message(object):
         host, port = value
         try:
             host = ipaddress.ip_address(host)
-        except ipaddress.AddressValueError:
+        except ipaddress.AddressValueError:  # pragma: no cover
             raise errors.CoAPException("Invalid source")
 
         self._source = host, port
@@ -534,10 +531,7 @@ class Message(object):
         if isinstance(content_type, defines.ContentType):
             option.value = content_type.value
         elif isinstance(content_type, int):
-            try:
-                option.value = defines.ContentType(content_type)
-            except ValueError:  # pragma: no cover
-                raise errors.CoAPException("Unknown Content Type")
+            option.value = content_type
         self.add_option(option)
 
     @content_type.deleter

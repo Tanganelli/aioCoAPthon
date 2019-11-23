@@ -952,3 +952,4 @@ class PlugtestBlockClass(unittest.TestCase):
         self.assertEqual(ret, expected)
 
         self.stop_client_server(client, server)
+
