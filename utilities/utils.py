@@ -111,11 +111,6 @@ def generate_random_hex(size):
     return ''.join(chr(random.randint(0, 255)) for _ in range(size))
 
 
-def generate_random_str(size):
-    alphabet = string.ascii_letters + string.digits
-    return ''.join(random.choice(alphabet) for _ in range(size))
-
-
 class CoAPPayload(object):
     def __init__(self, payload: bytes = None):
         self._payload = payload
@@ -125,7 +120,7 @@ class CoAPPayload(object):
             return ""
         try:
             return self._payload.decode("utf-8")
-        except UnicodeDecodeError:
+        except UnicodeDecodeError:  # pragma: no cover
             import base64
             return base64.b64encode(self._payload)
 
@@ -153,7 +148,7 @@ class CoAPPayload(object):
             return ""
         return self._payload[item]
 
-    def decode(self, encoding="utf-8") -> str:
+    def decode(self, encoding="utf-8") -> str:  # pragma: no cover
         if self._payload is not None:
             return self._payload.decode(encoding)
         else:
@@ -191,7 +186,7 @@ def usage():  # pragma: no cover
     print("server.py -i <ip address> -p <port>")
 
 
-def parse_arguments(argv):
+def parse_arguments(argv):  # pragma: no cover
     import getopt
     import sys
     ip = "0.0.0.0"

@@ -74,7 +74,7 @@ class MessageLayer(object):
             transaction.request.duplicated = True
         else:
             request.timestamp = time.time()
-            transaction = Transaction(request=request, timestamp=request.timestamp, origin=defines.Origin.REMOTE)
+            transaction = Transaction(request=request, timestamp=request.timestamp)
             self._transactions[key_mid] = transaction
             self._transactions_token[key_token] = transaction
         return transaction
@@ -211,7 +211,7 @@ class MessageLayer(object):
             raise errors.CoAPException("Request destination cannot be computed")
 
         request.timestamp = time.time()
-        transaction = Transaction(request=request, timestamp=request.timestamp, origin=defines.Origin.LOCAL)
+        transaction = Transaction(request=request, timestamp=request.timestamp)
         if transaction.request.type is None:  # pragma: no cover
             raise errors.CoAPException("Request type is not set")
 
@@ -343,7 +343,7 @@ class MessageLayer(object):
             key_token = utils.str_append_hash(host, port, message.token)
 
             message.timestamp = time.time()
-            transaction = Transaction(request=message, timestamp=message.timestamp, origin=defines.Origin.LOCAL)
+            transaction = Transaction(request=message, timestamp=message.timestamp)
             self._transactions[key_mid] = transaction
             self._transactions_token[key_token] = transaction
         logger.debug("send_empty -  {0}".format(message))

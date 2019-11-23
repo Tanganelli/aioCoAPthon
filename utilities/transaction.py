@@ -17,7 +17,7 @@ class Transaction(object):
     """
 
     def __init__(self, request: Union[Request, Message] = None, response: Response = None,
-                 resource: Resource = None, timestamp: time.time = None, origin=None):
+                 resource: Resource = None, timestamp: time.time = None):
         """
         Initialize a Transaction object.
 
@@ -30,7 +30,6 @@ class Transaction(object):
         self._request = request
         self._resource = resource
         self._timestamp = timestamp
-        self._origin = origin
         self._completed = False
         self._block_transfer = False
         self.notification = False
@@ -46,10 +45,6 @@ class Transaction(object):
 
         self.cacheHit = False
         self.cached_element = None
-
-    @property
-    def origin(self):
-        return self._origin
 
     @property
     def retransmit_stop(self) -> bool:
@@ -142,24 +137,6 @@ class Transaction(object):
         :param value: the resource to be set in the transaction
         """
         self._resource = value
-
-    @property
-    def timestamp(self) -> float:
-        """
-        Return the timestamp.
-
-        :return: the timestamp
-        """
-        return self._timestamp
-
-    @timestamp.setter
-    def timestamp(self, t: float):
-        """
-        Set the timestamp.
-
-        :param t: the timestamp of the transaction
-        """
-        self._timestamp = t
 
     @property
     def completed(self) -> bool:

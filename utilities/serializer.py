@@ -31,14 +31,14 @@ class Serializer(object):
         if 0 <= value < 13:
             return data, value
         elif value == 13:
-            if len(data) < 1:
+            if len(data) < 1:  # pragma: no cover
                 raise errors.CoAPException("Option ended prematurely")
             return data[1:], data[0] + 13
         elif value == 14:
-            if len(data) < 2:
+            if len(data) < 2:  # pragma: no cover
                 raise errors.CoAPException("Malformed option")
             return data[2:], int.from_bytes(data[:2], 'big') + 269
-        else:
+        else:  # pragma: no cover
             raise errors.CoAPException("Malformed option")
 
     @classmethod
@@ -55,13 +55,13 @@ class Serializer(object):
             data, delta = Serializer._read_extended_value(delta, data)
             data, length = Serializer._read_extended_value(length, data)
             option_number += delta
-            if len(data) < length:
+            if len(data) < length:  # pragma: no cover
                 raise errors.CoAPException("Option value is not present")
             try:
                 option_item = OptionRegistry(option_number)
             except KeyError or ValueError:
                 (opt_critical, _, _) = OptionRegistry.get_option_flags(option_number)
-                if opt_critical:
+                if opt_critical:  # pragma: no cover
                     raise errors.CoAPException("Critical option {0} unknown".format(option_number))
                 else:
                     # If the non-critical option is unknown
@@ -97,7 +97,7 @@ class Serializer(object):
 
         try:
             (vttkl, code, mid) = struct.unpack('!BBH', datagram[:4])
-        except struct.error:
+        except struct.error:  # pragma: no cover
             raise errors.CoAPException("Message too short for CoAP")
 
         datagram = datagram[4:]
@@ -105,17 +105,17 @@ class Serializer(object):
         message_type = (vttkl & 0x30) >> 4
         tkl = int(vttkl & 0x0F)
 
-        if version != defines.VERSION:
+        if version != defines.VERSION:  # pragma: no cover
             raise errors.ProtocolError("Unsupported protocol version", mid)
 
-        if 9 <= tkl <= 15:
+        if 9 <= tkl <= 15:  # pragma: no cover
             raise errors.ProtocolError("Token Length 9-15 are reserved", mid)
 
         code_class = (code & 0b11100000) >> 5
         code_details = (code & 0b00011111)
         try:
             cl = MessageCodeClass(code_class)
-        except ValueError:
+        except ValueError:  # pragma: no cover
             raise errors.ProtocolError("Unknown code class {0}".format(code_class), mid)
         try:
             if cl == MessageCodeClass.RESPONSE or cl == MessageCodeClass.CLIENT_ERROR or \
@@ -128,7 +128,7 @@ class Serializer(object):
             else:  # Empty message
                 message = Message()
                 message.code = defines.Code.EMPTY
-        except ValueError:
+        except ValueError:  # pragma: no cover
             raise errors.ProtocolError("Unknown code {0}".format(code), mid)
 
         if source is not None:
@@ -148,7 +148,7 @@ class Serializer(object):
         except errors.CoAPException as e:
             raise errors.ProtocolError(e.msg, mid)
         message.add_options(options)
-        if len(datagram) == 1:
+        if len(datagram) == 1:  # pragma: no cover
             raise errors.ProtocolError("Payload Marker with no payload", mid)
         elif len(datagram) == 0:
             message.payload = None
@@ -168,7 +168,7 @@ class Serializer(object):
             return 13, (value - 13).to_bytes(1, 'big'), "c"
         elif 269 <= value < 65804:
             return 14, (value - 269).to_bytes(2, 'big'), "cc"
-        else:
+        else:  # pragma: no cover
             raise errors.CoAPException("Delta or Length value out of range.")
 
     @classmethod
@@ -191,12 +191,6 @@ class Serializer(object):
                 data.append(extended_length)
 
             if option.length != 0:
-                # if option.type == defines.OptionType.STRING:
-                #     fmt += "{0}s".format(option.length)
-                # elif option.type == defines.OptionType.OPAQUE:
-                #     fmt += "{0}c".format(option.length)
-                # elif option.type == defines.OptionType.INTEGER:
-                #     fmt += "{0}B".format(option.length)
                 fmt += "{0}s".format(option.length)
                 data.append(option.raw_value)
 
@@ -221,7 +215,7 @@ class Serializer(object):
             message.source = source
         if message.destination is None:
             message.destination = destination
-        if message.code is None or message.type is None or message.mid is None:
+        if message.code is None or message.type is None or message.mid is None:  # pragma: no cover
             raise errors.CoAPException("Code, Message Type and Message ID must not be None.")
         fmt = "!BBH"
 
@@ -260,7 +254,7 @@ class Serializer(object):
             s = struct.Struct(fmt)
             datagram = ctypes.create_string_buffer(s.size)
             s.pack_into(datagram, 0, *data)
-        except struct.error:
+        except struct.error:  # pragma: no cover
             print("fmt: {0}, {1}".format(fmt, data))
             raise errors.CoAPException("Message cannot be serialized.")
         return datagram

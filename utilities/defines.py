@@ -95,15 +95,15 @@ class OptionRegistry(enum.IntEnum):
     NO_RESPONSE = 258
 
     @property
-    def critical(self) -> bool:
+    def critical(self) -> bool:  # pragma: no cover
         return self & 0x01 == 0x01
 
     @property
-    def unsafe(self) -> bool:
+    def unsafe(self) -> bool:  # pragma: no cover
         return self & 0x02 == 0x02
 
     @property
-    def nocachekey(self) -> bool:
+    def nocachekey(self) -> bool:  # pragma: no cover
         if self.unsafe:
             raise ValueError("NoCacheKey is only meaningful for safe options")
         return self & 0x1e == 0x1c
@@ -134,7 +134,7 @@ class OptionRegistry(enum.IntEnum):
                 or (isinstance(default, str) and self._format == OptionType.STRING) \
                 or (isinstance(default, bytes) and self._format == OptionType.OPAQUE):
             self._default = default
-        else:
+        else:  # pragma: no cover
             raise ValueError("Default value not of option type")
 
     @property
@@ -147,14 +147,14 @@ class OptionRegistry(enum.IntEnum):
     def repeatable(self, r: bool):
         self._repeatable = r
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return "Option {0}".format(self.name)
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return "Num: {0}, Name: {1}".format(self.value, self.name)
 
     @staticmethod
-    def get_option_flags(option_num):
+    def get_option_flags(option_num):  # pragma: no cover
         """
         Get Critical, UnSafe, NoCacheKey flags from the option number
         as per RFC 7252, section 5.4.6

@@ -13,7 +13,7 @@ class ProtocolError(CoAPException):
         self.mid = mid
 
 
-class InternalError(CoAPException):
+class InternalError(CoAPException):  # pragma: no cover
     def __init__(self, msg: str, response_code: defines.Code,
                  transaction: "Transaction", exc: Exception = None):
         super().__init__(msg)

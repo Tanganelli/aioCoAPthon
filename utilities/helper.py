@@ -105,7 +105,7 @@ class Helper(object):
     async def delete(self, request, callback, timeout):
         return await self.get(request, callback, timeout)
 
-    async def observe(self, request, callback=None, queue=None, stop=None, timeout=None, **kwargs):  # pragma: no cover
+    async def observe(self, request, callback=None, queue=None, stop=None, timeout=None, **kwargs):
         transaction = await self.send_request(request)
         response = await self.receive_response(transaction, timeout)
 
