@@ -785,3 +785,498 @@ class PlugtestBlockClientClass(unittest.TestCase):
         self.assertEqual(ret, expected)
 
         await self.stop_client_server(client, server)
+
+    @async_test
+    async def test_td_coap_block_07(self):
+        client, server = await self.start_client_server()
+        print("TD_COAP_BLOCK_CLIENT_07")
+        path = "/large-create"
+
+        token = utils.generate_random_hex(2)
+
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.code = defines.Code.CREATED
+        expected.token = token
+        expected.location_path = "/large-create/ps"
+        expected.block1 = (7, 0, 256)
+        expected.source = "127.0.0.1", 5683
+
+        payload = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sollicitudin fermentum ornare. " \
+                  "Cras accumsan tellus quis dui lacinia eleifend. Proin ultrices rutrum orci vitae luctus. " \
+                  "Nullam malesuada pretium elit, at aliquam odio vehicula in. Etiam nec maximus elit. " \
+                  "Etiam at erat ac ex ornare feugiat. Curabitur sed malesuada orci, id aliquet nunc. Phasellus " \
+                  "nec leo luctus, blandit lorem sit amet, interdum metus. Duis efficitur volutpat magna, ac " \
+                  "ultricies nibh aliquet sit amet. Etiam tempor egestas augue in hendrerit. Nunc eget augue " \
+                  "ultricies, dignissim lacus et, vulputate dolor. Nulla eros odio, fringilla vel massa ut, " \
+                  "facilisis cursus quam. Fusce faucibus lobortis congue. Fusce consectetur porta neque, id " \
+                  "sollicitudin velit maximus eu. Sed pharetra leo quam, vel finibus turpis cursus ac. " \
+                  "Aenean ac nisi massa. Cras commodo arcu nec ante tristique ullamcorper. Quisque eu hendrerit" \
+                  " urna. Cras fringilla eros ut nunc maximus, non porta nisl mollis. Aliquam in rutrum massa." \
+                  " Praesent tristique turpis dui, at ultri" \
+                  "cies lorem fermentum at. Vivamus sit amet ornare neque, " \
+                  "a imperdiet nisl. Quisque a iaculis libero, id tempus lacus. " \
+                  "Aenean convallis est non justo consectetur, a hendrerit enim consequat. In accumsan ante " \
+                  "a egestas luctus. Etiam quis neque nec eros vestibulum faucibus. Nunc viverra ipsum " \
+                  "lectus, vel scelerisque dui dictum a. Ut orci enim, ultrices a ultrices nec, pharetra " \
+                  "in quam. Donec accumsan sit amet eros eget fermentum." \
+                  "Vivamus ut odio ac odio malesuada accumsan. Aenean vehicula diam at tempus ornare. " \
+                  "Phasellus dictum mauris a mi consequat, vitae mattis nulla fringilla. Ut laoreet " \
+                  "tellus in nisl efficitur, a luctus justo tempus. Fusce finibus libero eget velit " \
+                  "finibus iaculis. Morbi rhoncus purus vel vestibulum ullamcorper. Sed ac metus in urna " \
+                  "fermentum feugiat. Nulla nunc diam, sodales aliquam mi id, varius porta nisl. Praesent " \
+                  "vel nibh ac turpis rutrum laoreet at non odio. Phasellus ut posuere mi. Suspendisse " \
+                  "malesuada velit nec mauris convallis porta. Vivamus sed ultrices sapien, at cras amet."
+
+        ret = await client.post(path, payload, timeout=10, block1=(0, 1, 256), token=token)
+        expected.mid = ret.mid
+
+        if ret != expected:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+            self.assertEqual(ret, expected)
+
+        token = utils.generate_random_hex(2)
+
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.code = defines.Code.CONTENT
+        expected.payload = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sollicitudin fermentum ornare. " \
+                           "Cras accumsan tellus quis dui lacinia eleifend. Proin ultrices rutrum orci vitae luctus. " \
+                           "Nullam malesuada pretium elit, at aliquam odio vehicula in. Etiam nec maximus elit. " \
+                           "Etiam at erat ac ex ornare feugiat. Curabitur sed malesuada orci, id aliquet nunc. Phasellus " \
+                           "nec leo luctus, blandit lorem sit amet, interdum metus. Duis efficitur volutpat magna, ac " \
+                           "ultricies nibh aliquet sit amet. Etiam tempor egestas augue in hendrerit. Nunc eget augue " \
+                           "ultricies, dignissim lacus et, vulputate dolor. Nulla eros odio, fringilla vel massa ut, " \
+                           "facilisis cursus quam. Fusce faucibus lobortis congue. Fusce consectetur porta neque, id " \
+                           "sollicitudin velit maximus eu. Sed pharetra leo quam, vel finibus turpis cursus ac. " \
+                           "Aenean ac nisi massa. Cras commodo arcu nec ante tristique ullamcorper. Quisque eu hendrerit" \
+                           " urna. Cras fringilla eros ut nunc maximus, non porta nisl mollis. Aliquam in rutrum massa." \
+                           " Praesent tristique turpis dui, at ultri" \
+                           "cies lorem fermentum at. Vivamus sit amet ornare neque, " \
+                           "a imperdiet nisl. Quisque a iaculis libero, id tempus lacus. " \
+                           "Aenean convallis est non justo consectetur, a hendrerit enim consequat. In accumsan ante " \
+                           "a egestas luctus. Etiam quis neque nec eros vestibulum faucibus. Nunc viverra ipsum " \
+                           "lectus, vel scelerisque dui dictum a. Ut orci enim, ultrices a ultrices nec, pharetra " \
+                           "in quam. Donec accumsan sit amet eros eget fermentum." \
+                           "Vivamus ut odio ac odio malesuada accumsan. Aenean vehicula diam at tempus ornare. " \
+                           "Phasellus dictum mauris a mi consequat, vitae mattis nulla fringilla. Ut laoreet " \
+                           "tellus in nisl efficitur, a luctus justo tempus. Fusce finibus libero eget velit " \
+                           "finibus iaculis. Morbi rhoncus purus vel vestibulum ullamcorper. Sed ac metus in urna " \
+                           "fermentum feugiat. Nulla nunc diam, sodales aliquam mi id, varius porta nisl. Praesent " \
+                           "vel nibh ac turpis rutrum laoreet at non odio. Phasellus ut posuere mi. Suspendisse " \
+                           "malesuada velit nec mauris convallis porta. Vivamus sed ultrices sapien, at cras amet."
+
+        expected.token = token
+        expected.block2 = (1, 0, 1024)
+        expected.source = "127.0.0.1", 5683
+
+        ret = await client.get("/large-create/ps", timeout=10, block2=(0, 0, 1024), token=token)
+        expected.mid = ret.mid
+
+        if ret == expected:
+            print("PASS")
+        else:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+            print(ret.pretty_print())
+
+        self.assertEqual(ret, expected)
+
+        await self.stop_client_server(client, server)
+
+    @async_test
+    async def test_td_coap_block_08(self):
+        client, server = await self.start_client_server()
+        print("TD_COAP_BLOCK_CLIENT_08")
+        path = "/large-create"
+
+        token = utils.generate_random_hex(2)
+
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.code = defines.Code.CREATED
+        expected.token = token
+        expected.location_path = "/large-create/ps"
+        expected.block1 = (15, 0, 128)
+        expected.source = "127.0.0.1", 5683
+
+        payload = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sollicitudin fermentum ornare. " \
+                  "Cras accumsan tellus quis dui lacinia eleifend. Proin ultrices rutrum orci vitae luctus. " \
+                  "Nullam malesuada pretium elit, at aliquam odio vehicula in. Etiam nec maximus elit. " \
+                  "Etiam at erat ac ex ornare feugiat. Curabitur sed malesuada orci, id aliquet nunc. Phasellus " \
+                  "nec leo luctus, blandit lorem sit amet, interdum metus. Duis efficitur volutpat magna, ac " \
+                  "ultricies nibh aliquet sit amet. Etiam tempor egestas augue in hendrerit. Nunc eget augue " \
+                  "ultricies, dignissim lacus et, vulputate dolor. Nulla eros odio, fringilla vel massa ut, " \
+                  "facilisis cursus quam. Fusce faucibus lobortis congue. Fusce consectetur porta neque, id " \
+                  "sollicitudin velit maximus eu. Sed pharetra leo quam, vel finibus turpis cursus ac. " \
+                  "Aenean ac nisi massa. Cras commodo arcu nec ante tristique ullamcorper. Quisque eu hendrerit" \
+                  " urna. Cras fringilla eros ut nunc maximus, non porta nisl mollis. Aliquam in rutrum massa." \
+                  " Praesent tristique turpis dui, at ultri" \
+                  "cies lorem fermentum at. Vivamus sit amet ornare neque, " \
+                  "a imperdiet nisl. Quisque a iaculis libero, id tempus lacus. " \
+                  "Aenean convallis est non justo consectetur, a hendrerit enim consequat. In accumsan ante " \
+                  "a egestas luctus. Etiam quis neque nec eros vestibulum faucibus. Nunc viverra ipsum " \
+                  "lectus, vel scelerisque dui dictum a. Ut orci enim, ultrices a ultrices nec, pharetra " \
+                  "in quam. Donec accumsan sit amet eros eget fermentum." \
+                  "Vivamus ut odio ac odio malesuada accumsan. Aenean vehicula diam at tempus ornare. " \
+                  "Phasellus dictum mauris a mi consequat, vitae mattis nulla fringilla. Ut laoreet " \
+                  "tellus in nisl efficitur, a luctus justo tempus. Fusce finibus libero eget velit " \
+                  "finibus iaculis. Morbi rhoncus purus vel vestibulum ullamcorper. Sed ac metus in urna " \
+                  "fermentum feugiat. Nulla nunc diam, sodales aliquam mi id, varius porta nisl. Praesent " \
+                  "vel nibh ac turpis rutrum laoreet at non odio. Phasellus ut posuere mi. Suspendisse " \
+                  "malesuada velit nec mauris convallis porta. Vivamus sed ultrices sapien, at cras amet."
+
+        ret = await client.post(path, payload, timeout=10, block1=(0, 1, 128), token=token)
+        expected.mid = ret.mid
+
+        if ret != expected:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+            self.assertEqual(ret, expected)
+
+        token = utils.generate_random_hex(2)
+
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.code = defines.Code.CONTENT
+        expected.payload = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sollicitudin fermentum ornare. " \
+                           "Cras accumsan tellus quis dui lacinia eleifend. Proin ultrices rutrum orci vitae luctus. " \
+                           "Nullam malesuada pretium elit, at aliquam odio vehicula in. Etiam nec maximus elit. " \
+                           "Etiam at erat ac ex ornare feugiat. Curabitur sed malesuada orci, id aliquet nunc. Phasellus " \
+                           "nec leo luctus, blandit lorem sit amet, interdum metus. Duis efficitur volutpat magna, ac " \
+                           "ultricies nibh aliquet sit amet. Etiam tempor egestas augue in hendrerit. Nunc eget augue " \
+                           "ultricies, dignissim lacus et, vulputate dolor. Nulla eros odio, fringilla vel massa ut, " \
+                           "facilisis cursus quam. Fusce faucibus lobortis congue. Fusce consectetur porta neque, id " \
+                           "sollicitudin velit maximus eu. Sed pharetra leo quam, vel finibus turpis cursus ac. " \
+                           "Aenean ac nisi massa. Cras commodo arcu nec ante tristique ullamcorper. Quisque eu hendrerit" \
+                           " urna. Cras fringilla eros ut nunc maximus, non porta nisl mollis. Aliquam in rutrum massa." \
+                           " Praesent tristique turpis dui, at ultri" \
+                           "cies lorem fermentum at. Vivamus sit amet ornare neque, " \
+                           "a imperdiet nisl. Quisque a iaculis libero, id tempus lacus. " \
+                           "Aenean convallis est non justo consectetur, a hendrerit enim consequat. In accumsan ante " \
+                           "a egestas luctus. Etiam quis neque nec eros vestibulum faucibus. Nunc viverra ipsum " \
+                           "lectus, vel scelerisque dui dictum a. Ut orci enim, ultrices a ultrices nec, pharetra " \
+                           "in quam. Donec accumsan sit amet eros eget fermentum." \
+                           "Vivamus ut odio ac odio malesuada accumsan. Aenean vehicula diam at tempus ornare. " \
+                           "Phasellus dictum mauris a mi consequat, vitae mattis nulla fringilla. Ut laoreet " \
+                           "tellus in nisl efficitur, a luctus justo tempus. Fusce finibus libero eget velit " \
+                           "finibus iaculis. Morbi rhoncus purus vel vestibulum ullamcorper. Sed ac metus in urna " \
+                           "fermentum feugiat. Nulla nunc diam, sodales aliquam mi id, varius porta nisl. Praesent " \
+                           "vel nibh ac turpis rutrum laoreet at non odio. Phasellus ut posuere mi. Suspendisse " \
+                           "malesuada velit nec mauris convallis porta. Vivamus sed ultrices sapien, at cras amet."
+
+        expected.token = token
+        expected.block2 = (1, 0, 1024)
+        expected.source = "127.0.0.1", 5683
+
+        ret = await client.get("/large-create/ps", timeout=10, block2=(0, 0, 1024), token=token)
+        expected.mid = ret.mid
+
+        if ret == expected:
+            print("PASS")
+        else:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+            print(ret.pretty_print())
+
+        self.assertEqual(ret, expected)
+
+        await self.stop_client_server(client, server)
+
+    @async_test
+    async def test_td_coap_block_09(self):
+        client, server = await self.start_client_server()
+        print("TD_COAP_BLOCK_CLIENT_09")
+        path = "/large-create"
+
+        token = utils.generate_random_hex(2)
+
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.code = defines.Code.CREATED
+        expected.token = token
+        expected.location_path = "/large-create/ps"
+        expected.block1 = (31, 0, 64)
+        expected.source = "127.0.0.1", 5683
+
+        payload = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sollicitudin fermentum ornare. " \
+                  "Cras accumsan tellus quis dui lacinia eleifend. Proin ultrices rutrum orci vitae luctus. " \
+                  "Nullam malesuada pretium elit, at aliquam odio vehicula in. Etiam nec maximus elit. " \
+                  "Etiam at erat ac ex ornare feugiat. Curabitur sed malesuada orci, id aliquet nunc. Phasellus " \
+                  "nec leo luctus, blandit lorem sit amet, interdum metus. Duis efficitur volutpat magna, ac " \
+                  "ultricies nibh aliquet sit amet. Etiam tempor egestas augue in hendrerit. Nunc eget augue " \
+                  "ultricies, dignissim lacus et, vulputate dolor. Nulla eros odio, fringilla vel massa ut, " \
+                  "facilisis cursus quam. Fusce faucibus lobortis congue. Fusce consectetur porta neque, id " \
+                  "sollicitudin velit maximus eu. Sed pharetra leo quam, vel finibus turpis cursus ac. " \
+                  "Aenean ac nisi massa. Cras commodo arcu nec ante tristique ullamcorper. Quisque eu hendrerit" \
+                  " urna. Cras fringilla eros ut nunc maximus, non porta nisl mollis. Aliquam in rutrum massa." \
+                  " Praesent tristique turpis dui, at ultri" \
+                  "cies lorem fermentum at. Vivamus sit amet ornare neque, " \
+                  "a imperdiet nisl. Quisque a iaculis libero, id tempus lacus. " \
+                  "Aenean convallis est non justo consectetur, a hendrerit enim consequat. In accumsan ante " \
+                  "a egestas luctus. Etiam quis neque nec eros vestibulum faucibus. Nunc viverra ipsum " \
+                  "lectus, vel scelerisque dui dictum a. Ut orci enim, ultrices a ultrices nec, pharetra " \
+                  "in quam. Donec accumsan sit amet eros eget fermentum." \
+                  "Vivamus ut odio ac odio malesuada accumsan. Aenean vehicula diam at tempus ornare. " \
+                  "Phasellus dictum mauris a mi consequat, vitae mattis nulla fringilla. Ut laoreet " \
+                  "tellus in nisl efficitur, a luctus justo tempus. Fusce finibus libero eget velit " \
+                  "finibus iaculis. Morbi rhoncus purus vel vestibulum ullamcorper. Sed ac metus in urna " \
+                  "fermentum feugiat. Nulla nunc diam, sodales aliquam mi id, varius porta nisl. Praesent " \
+                  "vel nibh ac turpis rutrum laoreet at non odio. Phasellus ut posuere mi. Suspendisse " \
+                  "malesuada velit nec mauris convallis porta. Vivamus sed ultrices sapien, at cras amet."
+
+        ret = await client.post(path, payload, timeout=10, block1=(0, 1, 64), token=token)
+        expected.mid = ret.mid
+
+        if ret != expected:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+            self.assertEqual(ret, expected)
+
+        token = utils.generate_random_hex(2)
+
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.code = defines.Code.CONTENT
+        expected.payload = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sollicitudin fermentum ornare. " \
+                           "Cras accumsan tellus quis dui lacinia eleifend. Proin ultrices rutrum orci vitae luctus. " \
+                           "Nullam malesuada pretium elit, at aliquam odio vehicula in. Etiam nec maximus elit. " \
+                           "Etiam at erat ac ex ornare feugiat. Curabitur sed malesuada orci, id aliquet nunc. Phasellus " \
+                           "nec leo luctus, blandit lorem sit amet, interdum metus. Duis efficitur volutpat magna, ac " \
+                           "ultricies nibh aliquet sit amet. Etiam tempor egestas augue in hendrerit. Nunc eget augue " \
+                           "ultricies, dignissim lacus et, vulputate dolor. Nulla eros odio, fringilla vel massa ut, " \
+                           "facilisis cursus quam. Fusce faucibus lobortis congue. Fusce consectetur porta neque, id " \
+                           "sollicitudin velit maximus eu. Sed pharetra leo quam, vel finibus turpis cursus ac. " \
+                           "Aenean ac nisi massa. Cras commodo arcu nec ante tristique ullamcorper. Quisque eu hendrerit" \
+                           " urna. Cras fringilla eros ut nunc maximus, non porta nisl mollis. Aliquam in rutrum massa." \
+                           " Praesent tristique turpis dui, at ultri" \
+                           "cies lorem fermentum at. Vivamus sit amet ornare neque, " \
+                           "a imperdiet nisl. Quisque a iaculis libero, id tempus lacus. " \
+                           "Aenean convallis est non justo consectetur, a hendrerit enim consequat. In accumsan ante " \
+                           "a egestas luctus. Etiam quis neque nec eros vestibulum faucibus. Nunc viverra ipsum " \
+                           "lectus, vel scelerisque dui dictum a. Ut orci enim, ultrices a ultrices nec, pharetra " \
+                           "in quam. Donec accumsan sit amet eros eget fermentum." \
+                           "Vivamus ut odio ac odio malesuada accumsan. Aenean vehicula diam at tempus ornare. " \
+                           "Phasellus dictum mauris a mi consequat, vitae mattis nulla fringilla. Ut laoreet " \
+                           "tellus in nisl efficitur, a luctus justo tempus. Fusce finibus libero eget velit " \
+                           "finibus iaculis. Morbi rhoncus purus vel vestibulum ullamcorper. Sed ac metus in urna " \
+                           "fermentum feugiat. Nulla nunc diam, sodales aliquam mi id, varius porta nisl. Praesent " \
+                           "vel nibh ac turpis rutrum laoreet at non odio. Phasellus ut posuere mi. Suspendisse " \
+                           "malesuada velit nec mauris convallis porta. Vivamus sed ultrices sapien, at cras amet."
+
+        expected.token = token
+        expected.block2 = (1, 0, 1024)
+        expected.source = "127.0.0.1", 5683
+
+        ret = await client.get("/large-create/ps", timeout=10, block2=(0, 0, 1024), token=token)
+        expected.mid = ret.mid
+
+        if ret == expected:
+            print("PASS")
+        else:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+            print(ret.pretty_print())
+
+        self.assertEqual(ret, expected)
+
+        await self.stop_client_server(client, server)
+
+    @async_test
+    async def test_td_coap_block_10(self):
+        client, server = await self.start_client_server()
+        print("TD_COAP_BLOCK_CLIENT_10")
+        path = "/large-create"
+
+        token = utils.generate_random_hex(2)
+
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.code = defines.Code.CREATED
+        expected.token = token
+        expected.location_path = "/large-create/ps"
+        expected.block1 = (63, 0, 32)
+        expected.source = "127.0.0.1", 5683
+
+        payload = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sollicitudin fermentum ornare. " \
+                  "Cras accumsan tellus quis dui lacinia eleifend. Proin ultrices rutrum orci vitae luctus. " \
+                  "Nullam malesuada pretium elit, at aliquam odio vehicula in. Etiam nec maximus elit. " \
+                  "Etiam at erat ac ex ornare feugiat. Curabitur sed malesuada orci, id aliquet nunc. Phasellus " \
+                  "nec leo luctus, blandit lorem sit amet, interdum metus. Duis efficitur volutpat magna, ac " \
+                  "ultricies nibh aliquet sit amet. Etiam tempor egestas augue in hendrerit. Nunc eget augue " \
+                  "ultricies, dignissim lacus et, vulputate dolor. Nulla eros odio, fringilla vel massa ut, " \
+                  "facilisis cursus quam. Fusce faucibus lobortis congue. Fusce consectetur porta neque, id " \
+                  "sollicitudin velit maximus eu. Sed pharetra leo quam, vel finibus turpis cursus ac. " \
+                  "Aenean ac nisi massa. Cras commodo arcu nec ante tristique ullamcorper. Quisque eu hendrerit" \
+                  " urna. Cras fringilla eros ut nunc maximus, non porta nisl mollis. Aliquam in rutrum massa." \
+                  " Praesent tristique turpis dui, at ultri" \
+                  "cies lorem fermentum at. Vivamus sit amet ornare neque, " \
+                  "a imperdiet nisl. Quisque a iaculis libero, id tempus lacus. " \
+                  "Aenean convallis est non justo consectetur, a hendrerit enim consequat. In accumsan ante " \
+                  "a egestas luctus. Etiam quis neque nec eros vestibulum faucibus. Nunc viverra ipsum " \
+                  "lectus, vel scelerisque dui dictum a. Ut orci enim, ultrices a ultrices nec, pharetra " \
+                  "in quam. Donec accumsan sit amet eros eget fermentum." \
+                  "Vivamus ut odio ac odio malesuada accumsan. Aenean vehicula diam at tempus ornare. " \
+                  "Phasellus dictum mauris a mi consequat, vitae mattis nulla fringilla. Ut laoreet " \
+                  "tellus in nisl efficitur, a luctus justo tempus. Fusce finibus libero eget velit " \
+                  "finibus iaculis. Morbi rhoncus purus vel vestibulum ullamcorper. Sed ac metus in urna " \
+                  "fermentum feugiat. Nulla nunc diam, sodales aliquam mi id, varius porta nisl. Praesent " \
+                  "vel nibh ac turpis rutrum laoreet at non odio. Phasellus ut posuere mi. Suspendisse " \
+                  "malesuada velit nec mauris convallis porta. Vivamus sed ultrices sapien, at cras amet."
+
+        ret = await client.post(path, payload, timeout=10, block1=(0, 1, 32), token=token)
+        expected.mid = ret.mid
+
+        if ret != expected:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+            self.assertEqual(ret, expected)
+
+        token = utils.generate_random_hex(2)
+
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.code = defines.Code.CONTENT
+        expected.payload = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sollicitudin fermentum ornare. " \
+                           "Cras accumsan tellus quis dui lacinia eleifend. Proin ultrices rutrum orci vitae luctus. " \
+                           "Nullam malesuada pretium elit, at aliquam odio vehicula in. Etiam nec maximus elit. " \
+                           "Etiam at erat ac ex ornare feugiat. Curabitur sed malesuada orci, id aliquet nunc. Phasellus " \
+                           "nec leo luctus, blandit lorem sit amet, interdum metus. Duis efficitur volutpat magna, ac " \
+                           "ultricies nibh aliquet sit amet. Etiam tempor egestas augue in hendrerit. Nunc eget augue " \
+                           "ultricies, dignissim lacus et, vulputate dolor. Nulla eros odio, fringilla vel massa ut, " \
+                           "facilisis cursus quam. Fusce faucibus lobortis congue. Fusce consectetur porta neque, id " \
+                           "sollicitudin velit maximus eu. Sed pharetra leo quam, vel finibus turpis cursus ac. " \
+                           "Aenean ac nisi massa. Cras commodo arcu nec ante tristique ullamcorper. Quisque eu hendrerit" \
+                           " urna. Cras fringilla eros ut nunc maximus, non porta nisl mollis. Aliquam in rutrum massa." \
+                           " Praesent tristique turpis dui, at ultri" \
+                           "cies lorem fermentum at. Vivamus sit amet ornare neque, " \
+                           "a imperdiet nisl. Quisque a iaculis libero, id tempus lacus. " \
+                           "Aenean convallis est non justo consectetur, a hendrerit enim consequat. In accumsan ante " \
+                           "a egestas luctus. Etiam quis neque nec eros vestibulum faucibus. Nunc viverra ipsum " \
+                           "lectus, vel scelerisque dui dictum a. Ut orci enim, ultrices a ultrices nec, pharetra " \
+                           "in quam. Donec accumsan sit amet eros eget fermentum." \
+                           "Vivamus ut odio ac odio malesuada accumsan. Aenean vehicula diam at tempus ornare. " \
+                           "Phasellus dictum mauris a mi consequat, vitae mattis nulla fringilla. Ut laoreet " \
+                           "tellus in nisl efficitur, a luctus justo tempus. Fusce finibus libero eget velit " \
+                           "finibus iaculis. Morbi rhoncus purus vel vestibulum ullamcorper. Sed ac metus in urna " \
+                           "fermentum feugiat. Nulla nunc diam, sodales aliquam mi id, varius porta nisl. Praesent " \
+                           "vel nibh ac turpis rutrum laoreet at non odio. Phasellus ut posuere mi. Suspendisse " \
+                           "malesuada velit nec mauris convallis porta. Vivamus sed ultrices sapien, at cras amet."
+
+        expected.token = token
+        expected.block2 = (1, 0, 1024)
+        expected.source = "127.0.0.1", 5683
+
+        ret = await client.get("/large-create/ps", timeout=10, block2=(0, 0, 1024), token=token)
+        expected.mid = ret.mid
+
+        if ret == expected:
+            print("PASS")
+        else:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+            print(ret.pretty_print())
+
+        self.assertEqual(ret, expected)
+
+        await self.stop_client_server(client, server)
+
+    @async_test
+    async def test_td_coap_block_11(self):
+        client, server = await self.start_client_server()
+        print("TD_COAP_BLOCK_CLIENT_11")
+        path = "/large-create"
+
+        token = utils.generate_random_hex(2)
+
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.code = defines.Code.CREATED
+        expected.token = token
+        expected.location_path = "/large-create/ps"
+        expected.block1 = (127, 0, 16)
+        expected.source = "127.0.0.1", 5683
+
+        payload = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sollicitudin fermentum ornare. " \
+                  "Cras accumsan tellus quis dui lacinia eleifend. Proin ultrices rutrum orci vitae luctus. " \
+                  "Nullam malesuada pretium elit, at aliquam odio vehicula in. Etiam nec maximus elit. " \
+                  "Etiam at erat ac ex ornare feugiat. Curabitur sed malesuada orci, id aliquet nunc. Phasellus " \
+                  "nec leo luctus, blandit lorem sit amet, interdum metus. Duis efficitur volutpat magna, ac " \
+                  "ultricies nibh aliquet sit amet. Etiam tempor egestas augue in hendrerit. Nunc eget augue " \
+                  "ultricies, dignissim lacus et, vulputate dolor. Nulla eros odio, fringilla vel massa ut, " \
+                  "facilisis cursus quam. Fusce faucibus lobortis congue. Fusce consectetur porta neque, id " \
+                  "sollicitudin velit maximus eu. Sed pharetra leo quam, vel finibus turpis cursus ac. " \
+                  "Aenean ac nisi massa. Cras commodo arcu nec ante tristique ullamcorper. Quisque eu hendrerit" \
+                  " urna. Cras fringilla eros ut nunc maximus, non porta nisl mollis. Aliquam in rutrum massa." \
+                  " Praesent tristique turpis dui, at ultri" \
+                  "cies lorem fermentum at. Vivamus sit amet ornare neque, " \
+                  "a imperdiet nisl. Quisque a iaculis libero, id tempus lacus. " \
+                  "Aenean convallis est non justo consectetur, a hendrerit enim consequat. In accumsan ante " \
+                  "a egestas luctus. Etiam quis neque nec eros vestibulum faucibus. Nunc viverra ipsum " \
+                  "lectus, vel scelerisque dui dictum a. Ut orci enim, ultrices a ultrices nec, pharetra " \
+                  "in quam. Donec accumsan sit amet eros eget fermentum." \
+                  "Vivamus ut odio ac odio malesuada accumsan. Aenean vehicula diam at tempus ornare. " \
+                  "Phasellus dictum mauris a mi consequat, vitae mattis nulla fringilla. Ut laoreet " \
+                  "tellus in nisl efficitur, a luctus justo tempus. Fusce finibus libero eget velit " \
+                  "finibus iaculis. Morbi rhoncus purus vel vestibulum ullamcorper. Sed ac metus in urna " \
+                  "fermentum feugiat. Nulla nunc diam, sodales aliquam mi id, varius porta nisl. Praesent " \
+                  "vel nibh ac turpis rutrum laoreet at non odio. Phasellus ut posuere mi. Suspendisse " \
+                  "malesuada velit nec mauris convallis porta. Vivamus sed ultrices sapien, at cras amet."
+
+        ret = await client.post(path, payload, timeout=10, block1=(0, 1, 16), token=token)
+        expected.mid = ret.mid
+
+        if ret != expected:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+            self.assertEqual(ret, expected)
+
+        token = utils.generate_random_hex(2)
+
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.code = defines.Code.CONTENT
+        expected.payload = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sollicitudin fermentum ornare. " \
+                           "Cras accumsan tellus quis dui lacinia eleifend. Proin ultrices rutrum orci vitae luctus. " \
+                           "Nullam malesuada pretium elit, at aliquam odio vehicula in. Etiam nec maximus elit. " \
+                           "Etiam at erat ac ex ornare feugiat. Curabitur sed malesuada orci, id aliquet nunc. Phasellus " \
+                           "nec leo luctus, blandit lorem sit amet, interdum metus. Duis efficitur volutpat magna, ac " \
+                           "ultricies nibh aliquet sit amet. Etiam tempor egestas augue in hendrerit. Nunc eget augue " \
+                           "ultricies, dignissim lacus et, vulputate dolor. Nulla eros odio, fringilla vel massa ut, " \
+                           "facilisis cursus quam. Fusce faucibus lobortis congue. Fusce consectetur porta neque, id " \
+                           "sollicitudin velit maximus eu. Sed pharetra leo quam, vel finibus turpis cursus ac. " \
+                           "Aenean ac nisi massa. Cras commodo arcu nec ante tristique ullamcorper. Quisque eu hendrerit" \
+                           " urna. Cras fringilla eros ut nunc maximus, non porta nisl mollis. Aliquam in rutrum massa." \
+                           " Praesent tristique turpis dui, at ultri" \
+                           "cies lorem fermentum at. Vivamus sit amet ornare neque, " \
+                           "a imperdiet nisl. Quisque a iaculis libero, id tempus lacus. " \
+                           "Aenean convallis est non justo consectetur, a hendrerit enim consequat. In accumsan ante " \
+                           "a egestas luctus. Etiam quis neque nec eros vestibulum faucibus. Nunc viverra ipsum " \
+                           "lectus, vel scelerisque dui dictum a. Ut orci enim, ultrices a ultrices nec, pharetra " \
+                           "in quam. Donec accumsan sit amet eros eget fermentum." \
+                           "Vivamus ut odio ac odio malesuada accumsan. Aenean vehicula diam at tempus ornare. " \
+                           "Phasellus dictum mauris a mi consequat, vitae mattis nulla fringilla. Ut laoreet " \
+                           "tellus in nisl efficitur, a luctus justo tempus. Fusce finibus libero eget velit " \
+                           "finibus iaculis. Morbi rhoncus purus vel vestibulum ullamcorper. Sed ac metus in urna " \
+                           "fermentum feugiat. Nulla nunc diam, sodales aliquam mi id, varius porta nisl. Praesent " \
+                           "vel nibh ac turpis rutrum laoreet at non odio. Phasellus ut posuere mi. Suspendisse " \
+                           "malesuada velit nec mauris convallis porta. Vivamus sed ultrices sapien, at cras amet."
+
+        expected.token = token
+        expected.block2 = (1, 0, 1024)
+        expected.source = "127.0.0.1", 5683
+
+        ret = await client.get("/large-create/ps", timeout=10, block2=(0, 0, 1024), token=token)
+        expected.mid = ret.mid
+
+        if ret == expected:
+            print("PASS")
+        else:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+            print(ret.pretty_print())
+
+        self.assertEqual(ret, expected)
+
+        await self.stop_client_server(client, server)
