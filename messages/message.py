@@ -50,7 +50,7 @@ class Message(object):
         :param v: the version
         :raise AttributeError: if value is not 1
         """
-        if not isinstance(v, int) or v != 1:
+        if not isinstance(v, int) or v != 1:  # pragma: no cover
             raise errors.CoAPException("Only CoAP version 1 is supported")
         self._version = v
 
@@ -77,7 +77,7 @@ class Message(object):
         else:
             try:
                 self._type = defines.Type(value)
-            except ValueError:
+            except ValueError:  # pragma: no cover
                 raise errors.CoAPException("Unsupported message type")
 
     @property
@@ -98,7 +98,7 @@ class Message(object):
         :param value: the MID
         :raise AttributeError: if value is not int or cannot be represented on 16 bits.
         """
-        if not isinstance(value, int) or value > 65536:
+        if not isinstance(value, int) or value > 65536:  # pragma: no cover
             raise errors.CoAPException("MID must be between 0 and 65536")
         self._mid = value
 
@@ -133,15 +133,8 @@ class Message(object):
             self._token = value.encode("utf-8")
         elif isinstance(value, bytes) and len(value) < 256:
             self._token = value
-        else:
+        else:  # pragma: no cover
             raise errors.CoAPException("Invalid token")
-
-    @token.deleter
-    def token(self):
-        """
-        Unset the Token of the message.
-        """
-        self._token = None
 
     @property
     def options(self) -> List[Option]:
@@ -165,7 +158,7 @@ class Message(object):
             value = []
         if isinstance(value, list):
             self._options = value
-        else:
+        else:  # pragma: no cover
             raise errors.CoAPException("Invalid option list")
 
     @property
@@ -192,7 +185,7 @@ class Message(object):
             self._payload.payload = value.encode("utf-8")
         elif isinstance(value, utils.CoAPPayload):
             self._payload.payload = value.payload
-        else:
+        else:  # pragma: no cover
             raise errors.CoAPException("Payload must be bytes, str or None")
 
     @property
@@ -217,13 +210,13 @@ class Message(object):
         if value is None:
             self._destination = None
             return
-        elif not isinstance(value, tuple) or len(value) != 2:
+        elif not isinstance(value, tuple) or len(value) != 2:  # pragma: no cover
             raise errors.CoAPException("Invalid destination")
 
         host, port = value
         try:
             host = ipaddress.ip_address(host)
-        except ipaddress.AddressValueError:
+        except ipaddress.AddressValueError:  # pragma: no cover
             raise errors.CoAPException("Invalid destination")
         self._destination = host, port
 
@@ -249,7 +242,7 @@ class Message(object):
         if value is None:
             self._source = None
             return
-        elif not isinstance(value, tuple) or len(value) != 2:
+        elif not isinstance(value, tuple) or len(value) != 2:  # pragma: no cover
             raise errors.CoAPException("Invalid source")
 
         host, port = value
@@ -283,7 +276,7 @@ class Message(object):
             self._code = value
         elif isinstance(value, int):
             self._code = defines.Code(value)
-        else:
+        else:  # pragma: no cover
             raise ValueError("Invalid code, allowed types are: Code and int")
 
     @property
@@ -421,7 +414,7 @@ class Message(object):
         assert isinstance(option, Option)
         if not option.type.repeatable:
             ret = self._already_in(option)
-            if ret:
+            if ret:  # pragma: no cover
                 raise errors.CoAPException("Option {0} is not repeatable".format(option.name))
             else:
                 self._options.append(option)
@@ -433,7 +426,7 @@ class Message(object):
         for o in options:
             self.add_option(o)
 
-    def del_option(self, option: Option):
+    def del_option(self, option: Option):  # pragma: no cover
         """
         Delete an option from the message
 
@@ -444,7 +437,7 @@ class Message(object):
         while option in list(self._options):
             self._options.remove(option)
 
-    def del_option_by_name(self, name: str):
+    def del_option_by_name(self, name: str):  # pragma: no cover
         """
         Delete an option from the message by name
 
@@ -501,7 +494,7 @@ class Message(object):
                 e = e.encode("utf-8")
             if isinstance(e, bytes):
                 option.value = e
-            else:
+            else:  # pragma: no cover
                 raise errors.CoAPException("ETAG must be Opaque")
             self.add_option(option)
 
@@ -525,7 +518,7 @@ class Message(object):
             if option.number == defines.OptionRegistry.CONTENT_TYPE.value:
                 try:
                     value = defines.ContentType(option.value)
-                except ValueError:
+                except ValueError:  # pragma: no cover
                     raise errors.CoAPException("Unknown Content Type")
         return value
 
@@ -543,7 +536,7 @@ class Message(object):
         elif isinstance(content_type, int):
             try:
                 option.value = defines.ContentType(content_type)
-            except ValueError:
+            except ValueError:  # pragma: no cover
                 raise errors.CoAPException("Unknown Content Type")
         self.add_option(option)
 
@@ -730,7 +723,7 @@ class Message(object):
     def __str__(self):
         return self.line_print
 
-    def pretty_print(self):
+    def pretty_print(self):  # pragma: no cover
         """
         Return the message as a formatted string.
 
