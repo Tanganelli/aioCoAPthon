@@ -151,7 +151,7 @@ class Request(Message):
             option = Option(defines.OptionRegistry.ACCEPT)
             option.value = value
             self.add_option(option)
-        except ValueError:
+        except ValueError:  # pragma: no cover
             raise errors.CoAPException("Unknown Accept value")
 
     @accept.deleter

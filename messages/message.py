@@ -686,7 +686,7 @@ class Message(object):
         return "".join(value)
 
     @property
-    def line_print(self):
+    def line_print(self):  # pragma: no cover
         """
         Return the message as a one-line string.
 

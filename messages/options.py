@@ -83,17 +83,17 @@ class Option(object):
                 self._raw_value = value.to_bytes(length=utils.byte_len(value), byteorder="big", signed=False)
             elif isinstance(value, bytes):
                 self._raw_value = value
-            else:
+            else:  # pragma: no cover
                 raise errors.CoAPException("Invalid value for option. UINT options only accept int and bytes")
         elif self._type.format == OptionType.STRING:
             if isinstance(value, str):
                 try:
                     self._raw_value = value.encode("utf-8")
-                except UnicodeEncodeError:
+                except UnicodeEncodeError:  # pragma: no cover
                     raise errors.CoAPException("Invalid value for option. Value is not UTF-8")
             elif isinstance(value, bytes):
                 self._raw_value = value
-            else:
+            else:  # pragma: no cover
                 raise errors.CoAPException("Invalid value for option. STRING options only accept strings and bytes")
         elif self._type.format == OptionType.OPAQUE:
             if value is None:
@@ -103,11 +103,11 @@ class Option(object):
             elif isinstance(value, str):
                 try:
                     self._raw_value = value.encode("utf-8")
-                except UnicodeEncodeError:
+                except UnicodeEncodeError:  # pragma: no cover
                     raise errors.CoAPException("Invalid value for option. Value is not UTF-8")
             elif isinstance(value, int):
                 self._raw_value = value.to_bytes(length=utils.byte_len(value), byteorder="big", signed=False)
-        else:
+        else:  # pragma: no cover
             raise errors.CoAPException("Unknown option format")
 
     @property
@@ -124,7 +124,7 @@ class Option(object):
         else:
             return len(self._raw_value)
 
-    def is_safe(self) -> bool:
+    def is_safe(self) -> bool:  # pragma: no cover
         """
         Check if the option is safe.
 
@@ -133,7 +133,7 @@ class Option(object):
         """
         return not self._type.unsafe
 
-    def is_critical(self) -> bool:
+    def is_critical(self) -> bool:  # pragma: no cover
         """
         Check if the option is critical.
 
@@ -142,7 +142,7 @@ class Option(object):
         """
         return not self._type.critical
 
-    def is_cacheables(self) -> bool:
+    def is_cacheables(self) -> bool:  # pragma: no cover
         """
         Check if the option is cacheables.
 
