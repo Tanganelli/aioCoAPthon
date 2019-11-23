@@ -684,7 +684,7 @@ class Message(object):
         self.del_option_by_number(defines.OptionRegistry.BLOCK2.value)
 
     @property
-    def cache_key(self) -> str:
+    def cache_key(self) -> str:  # pragma: no cover
         value = [self.code.value.to_bytes(1, 'big').decode("utf-8")]
         for option in self.options:
             if option.is_cacheables():
