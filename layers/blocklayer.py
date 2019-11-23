@@ -54,7 +54,7 @@ class BlockLayer(object):
         """
         try:
             host, port = transaction.request.source
-        except AttributeError:
+        except AttributeError:  # pragma: no cover
             raise errors.CoAPException("Request Source cannot be computed")
 
         key_token = utils.str_append_hash(host, port, transaction.request.token)
@@ -131,7 +131,7 @@ class BlockLayer(object):
         """
         try:
             host, port = transaction.request.source
-        except AttributeError:
+        except AttributeError:  # pragma: no cover
             raise errors.CoAPException("Request Source cannot be computed")
 
         key_token = utils.str_append_hash(host, port, transaction.request.token)
@@ -188,7 +188,7 @@ class BlockLayer(object):
         if request.block1 or (request.payload is not None and len(request.payload) > defines.MAX_PAYLOAD):
             try:
                 host, port = request.destination
-            except AttributeError:
+            except AttributeError:  # pragma: no cover
                 raise errors.CoAPException("Request destination cannot be computed")
             key_token = utils.str_append_hash(host, port, request.token)
             if request.block1:
@@ -204,7 +204,7 @@ class BlockLayer(object):
         elif request.block2:
             try:
                 host, port = request.destination
-            except AttributeError:
+            except AttributeError:  # pragma: no cover
                 raise errors.CoAPException("Request destination cannot be computed")
             key_token = utils.str_append_hash(host, port, request.token)
             num, m, size = request.block2
@@ -224,14 +224,14 @@ class BlockLayer(object):
         """
         try:
             host, port = transaction.response.source
-        except AttributeError:
+        except AttributeError:  # pragma: no cover
             raise errors.CoAPException("Response source cannot be computed")
         key_token = utils.str_append_hash(host, port, transaction.response.token)
 
         if key_token in self._block1_sent and transaction.response.block1 is not None:
             item = self._block1_sent[key_token]
             n_num, n_m, n_size = transaction.response.block1
-            if n_num != item.num:
+            if n_num != item.num:  # pragma: no cover
                 if transaction.response.type == defines.Type.CON or transaction.response.type == defines.Type.NON:
                     raise errors.ProtocolError(msg=f"Block num acknowledged error, expected {item.num} "
                                                    f"received {n_num}",
@@ -248,7 +248,7 @@ class BlockLayer(object):
             if m == 1:
                 if key_token in self._block2_sent:
                     item = self._block2_sent[key_token]
-                    if num != item.num:
+                    if num != item.num:  # pragma: no cover
                         if transaction.response.type == defines.Type.CON or transaction.response.type == defines.Type.NON:
                             raise errors.ProtocolError(msg=f"Receive unwanted block, expected {item.num} "
                                                            f"received {num}",
@@ -279,7 +279,7 @@ class BlockLayer(object):
                 if key_token in self._block2_sent:
                     if self._block2_sent[key_token].content_type is None:
                         self._block2_sent[key_token].content_type = transaction.response.content_type
-                    if self._block2_sent[key_token].content_type != transaction.response.content_type:
+                    if self._block2_sent[key_token].content_type != transaction.response.content_type:  # pragma: no cover
                         if transaction.response.type == defines.Type.CON or transaction.response.type == defines.Type.NON:
                             raise errors.ProtocolError(msg=f"Content-type Error",
                                                        mid=transaction.response.mid)

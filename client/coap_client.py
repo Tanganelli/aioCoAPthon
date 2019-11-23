@@ -50,6 +50,8 @@ class CoAPClient(CoAPProtocol):
                     await asyncio.wait_for(transaction.response_wait.wait(), timeout)
             except asyncio.TimeoutError:
                 return None
+            except asyncio.CancelledError:
+                return None
 
         return transaction.response
 
