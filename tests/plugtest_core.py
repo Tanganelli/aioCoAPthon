@@ -1406,3 +1406,48 @@ class PlugtestCoreClass(unittest.TestCase):
         self.assertEqual(ret, expected)
 
         self.stop_client_server(client, server)
+
+    @async_test
+    async def test_td_coap_core_35(self):
+        client, server = await self.start_client_server()
+        print("TD_COAP_CORE_35")
+        path = "/test"
+        req = Request()
+        req.code = defines.Code.GET
+        req.uri_path = path
+        req.type = defines.Type.CON
+        req.mid = random.randint(1, 1000)
+        req.destination = self.server_address
+        req.token = utils.generate_random_hex(2)
+
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.mid = req.mid
+        expected.code = defines.Code.CONTENT
+        expected.payload = "Test"
+        expected.token = req.token
+        expected.content_type = defines.ContentType.TEXT_PLAIN
+
+        expected.source = "127.0.0.1", 5683
+
+        transaction = await client.send_request(req)
+        ret = await client.receive_response(transaction, 10)
+
+        if ret != expected:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+            self.assertEqual(ret, expected)
+
+        transaction = await client.send_request(req)
+        transaction.response = None
+        ret = await client.receive_response(transaction, 10)
+
+        if ret == expected:
+            print("PASS")
+        else:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+
+        self.assertEqual(ret, expected)
+
+        self.stop_client_server(client, server)
