@@ -192,3 +192,15 @@ class ChildResource(Resource):
         response.content_type = self.content_type
         return self, response
 
+
+class SlowResource(Resource):
+
+    def __init__(self, name="Slow"):
+        super(SlowResource, self).__init__(name, visible=True, observable=True, allow_children=True)
+        self.payload = "Long Time"
+
+    def handle_get(self, request: "Request", response: "Response"):
+        import time
+        time.sleep(10)
+        response.payload = self.payload
+        return self, response

@@ -612,7 +612,6 @@ def main(argv):  # pragma: no cover
     server.add_resource('obs/', ObserveResource())
     server.add_resource('obs-large/', LargeObserveResource())
     server.add_resource('test/', TestResource())
-    server.add_resource('separate/', SeparateResource())
     server.add_resource('seg1/seg2/seg3/', ComposedResource())
     server.add_resource('query/', QueryResource())
     server.add_resource('location-query/', LocationQueryResource())
