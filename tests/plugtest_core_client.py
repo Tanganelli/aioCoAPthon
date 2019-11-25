@@ -28,7 +28,7 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
-class PlugtestCoreClientClass(unittest.TestCase):
+class PlugtestCoreClientClass(unittest.TestCase):  # pragma: no cover
     def setUp(self):
         self.server_address = ("127.0.0.1", 5683)
         self.server_mid = random.randint(1000, 2000)

@@ -3,7 +3,7 @@ from typing import Union, Tuple, Callable
 from resources.resource import Resource
 
 
-class LargeResource(Resource):
+class LargeResource(Resource):  # pragma: no cover
     def __init__(self, name="LargeResource"):
         super().__init__(name)
         self.payload = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sollicitudin fermentum ornare. " \

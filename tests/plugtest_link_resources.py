@@ -9,22 +9,12 @@ class Type1Resource(Resource):
         self.payload = ""
         self.core_rt = "Type1"
 
-    async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
-                                                                                  Callable]:
-        response.payload = self.payload
-        return self, response
-
 
 class Type2Resource(Resource):
     def __init__(self, name="Type2Resource"):
         super().__init__(name)
         self.payload = ""
         self.core_rt = "Type2"
-
-    async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
-                                                                                  Callable]:
-        response.payload = self.payload
-        return self, response
 
 
 class GroupType1Resource(Resource):
@@ -33,22 +23,12 @@ class GroupType1Resource(Resource):
         self.payload = ""
         self.core_rt = "Type1 Type2"
 
-    async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
-                                                                                  Callable]:
-        response.payload = self.payload
-        return self, response
-
 
 class GroupType2Resource(Resource):
     def __init__(self, name="GroupType2Resource"):
         super().__init__(name)
         self.payload = ""
         self.core_rt = "Type2 Type3"
-
-    async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
-                                                                                  Callable]:
-        response.payload = self.payload
-        return self, response
 
 
 class GroupType3Resource(Resource):
@@ -57,22 +37,12 @@ class GroupType3Resource(Resource):
         self.payload = ""
         self.core_rt = "Type1 Type3"
 
-    async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
-                                                                                  Callable]:
-        response.payload = self.payload
-        return self, response
-
 
 class GroupType4Resource(Resource):
     def __init__(self, name="GroupType4Resource"):
         super().__init__(name)
         self.payload = ""
         self.core_rt = ""
-
-    async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
-                                                                                  Callable]:
-        response.payload = self.payload
-        return self, response
 
 
 class GroupIf1Resource(Resource):
@@ -81,22 +51,12 @@ class GroupIf1Resource(Resource):
         self.payload = ""
         self.core_if = "if1"
 
-    async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
-                                                                                  Callable]:
-        response.payload = self.payload
-        return self, response
-
 
 class GroupIf2Resource(Resource):
     def __init__(self, name="GroupIf2Resource"):
         super().__init__(name)
         self.payload = ""
         self.core_if = "if2"
-
-    async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
-                                                                                  Callable]:
-        response.payload = self.payload
-        return self, response
 
 
 class GroupIf3Resource(Resource):
@@ -105,21 +65,11 @@ class GroupIf3Resource(Resource):
         self.payload = ""
         self.core_if = "foo"
 
-    async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
-                                                                                  Callable]:
-        response.payload = self.payload
-        return self, response
-
 
 class GroupIf4Resource(Resource):
     def __init__(self, name="GroupIf4Resource"):
         super().__init__(name)
         self.payload = ""
-
-    async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
-                                                                                  Callable]:
-        response.payload = self.payload
-        return self, response
 
 
 class SzResource(Resource):
@@ -128,18 +78,9 @@ class SzResource(Resource):
         self.payload = ""
         self.size = "10"
 
-    async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
-                                                                                  Callable]:
-        response.payload = self.payload
-        return self, response
-
 
 class LinkResource(Resource):
     def __init__(self, name="LinkResource"):
         super().__init__(name)
         self.payload = ""
 
-    async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
-                                                                                  Callable]:
-        response.payload = self.payload
-        return self, response

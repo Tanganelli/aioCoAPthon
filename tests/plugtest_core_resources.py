@@ -187,12 +187,6 @@ class ChildResource(Resource):
         super().__init__(name)
         self.payload = ""
 
-    async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
-                                                                                  Callable]:
-        response.payload = self.payload
-        response.content_type = self.content_type
-        return self, response
-
 
 class SlowResource(Resource):
 
