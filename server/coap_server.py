@@ -29,7 +29,7 @@ class CoAPServer(CoAPProtocol):
                 await self.receive_message()
             except asyncio.CancelledError:
                 return
-            except Exception:
+            except Exception:  # pragma: no cover
                 return
 
     def add_resource(self, path: str, resource: Resource) -> bool:
@@ -43,7 +43,7 @@ class CoAPServer(CoAPProtocol):
         resource.notify_queue = self.notify_queue
         return self._requestLayer.add_resource(path, resource)
 
-    def remove_resource(self, path: str) -> bool:
+    def remove_resource(self, path: str) -> bool:  # pragma: no cover
         """
         Helper function to remove resources.
 
@@ -81,7 +81,7 @@ class CoAPServer(CoAPProtocol):
                                     self._retransmit(transaction, transaction.response, future_time, 0))
 
                             self._loop.create_task(self._send_datagram(transaction.response))
-                    except errors.ObserveError as e:
+                    except errors.ObserveError as e:  # pragma: no cover
                         if e.transaction is not None:
                             if e.transaction.separate_task is not None:
                                  e.transaction.separate_task.cancel()
@@ -93,7 +93,7 @@ class CoAPServer(CoAPProtocol):
                             self._loop.create_task(self._send_datagram(e.transaction.response))
             except asyncio.CancelledError or RuntimeError:
                 break
-            except Exception as e:
+            except Exception as e:  # pragma: no cover
                 logger.exception(e)
                 break
 
@@ -143,7 +143,7 @@ class CoAPServer(CoAPProtocol):
 
                         if notify_in < min_pmin:
                             min_pmin = notify_in
-                    except errors.ObserveError as e:
+                    except errors.ObserveError as e:  # pragma: no cover
                         if e.transaction is not None:
                             e.transaction.separate_task.cancel()
                             e.transaction.response.payload = e.msg
@@ -156,6 +156,6 @@ class CoAPServer(CoAPProtocol):
                 await asyncio.sleep(min_pmin)
             except asyncio.CancelledError or RuntimeError:
                 break
-            except Exception as e:
+            except Exception as e:  # pragma: no cover
                 logger.exception(e)
                 break
