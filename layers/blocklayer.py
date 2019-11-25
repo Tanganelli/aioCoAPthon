@@ -1,10 +1,10 @@
 import cachetools
 import logging
 
-from utilities import errors, defines, utils
-from utilities.transaction import Transaction
-from messages.request import Request
-from messages.response import Response
+from ..utilities import errors, defines, utils
+from ..utilities.transaction import Transaction
+from ..messages.request import Request
+from ..messages.response import Response
 
 logger = logging.getLogger(__name__)
 

@@ -7,16 +7,16 @@ import struct
 from ipaddress import IPv4Address, IPv6Address
 from typing import Union
 
-from layers.blocklayer import BlockLayer
-from layers.messagelayer import MessageLayer
-from layers.observelayer import ObserveLayer
-from layers.requestlayer import RequestLayer
-from messages.message import Message
-from messages.request import Request
-from messages.response import Response
-from utilities import defines, errors
-from utilities.serializer import Serializer
-from utilities.transaction import Transaction
+from ..layers.blocklayer import BlockLayer
+from ..layers.messagelayer import MessageLayer
+from ..layers.observelayer import ObserveLayer
+from ..layers.requestlayer import RequestLayer
+from ..messages.message import Message
+from ..messages.request import Request
+from ..messages.response import Response
+from ..utilities import defines, errors
+from ..utilities.serializer import Serializer
+from ..utilities.transaction import Transaction
 
 logger = logging.getLogger(__name__)
 

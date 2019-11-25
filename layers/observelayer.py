@@ -4,9 +4,9 @@ import cachetools
 import logging
 from typing import Optional, List, Union
 
-from resources.resource import Resource
-from utilities import errors, defines, utils
-from utilities.transaction import Transaction
+from ..resources.resource import Resource
+from ..utilities import errors, defines, utils
+from ..utilities.transaction import Transaction
 
 __author__ = 'Giacomo Tanganelli'
 

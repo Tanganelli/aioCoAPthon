@@ -4,9 +4,9 @@ import random
 import time
 from typing import List
 
-from protocol.coap_protocol import CoAPProtocol
-from resources.resource import Resource
-from utilities import defines, errors
+from ..protocol.coap_protocol import CoAPProtocol
+from ..resources.resource import Resource
+from ..utilities import defines, errors
 
 logger = logging.getLogger(__name__)
 

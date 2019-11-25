@@ -1,8 +1,8 @@
 import struct
 from typing import Union
 
-from utilities import utils, errors
-from utilities.defines import OptionType, OptionRegistry
+from ..utilities import utils, errors
+from ..utilities.defines import OptionType, OptionRegistry
 
 __author__ = 'Giacomo Tanganelli'
 

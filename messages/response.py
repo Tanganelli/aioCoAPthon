@@ -1,6 +1,6 @@
-from utilities import defines
-from messages.message import Message
-from messages.options import Option
+from ..utilities import defines
+from ..messages.message import Message
+from ..messages.options import Option
 
 __author__ = 'Giacomo Tanganelli'
 

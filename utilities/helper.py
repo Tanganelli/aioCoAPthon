@@ -1,9 +1,9 @@
 import asyncio
 from typing import Callable
 
-from messages.request import Request
-from messages.response import Response
-from utilities import defines
+from ..messages.request import Request
+from ..messages.response import Response
+from ..utilities import defines
 
 __author__ = 'Giacomo Tanganelli'
 
