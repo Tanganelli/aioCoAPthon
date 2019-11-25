@@ -127,12 +127,12 @@ class CoAPProtocol(object):
         fd = self._socket.fileno()
         if fut is None:
             fut = self._loop.create_future()
-        if registed:
+        if registed:  # pragma: no cover
             try:
                 self._loop.remove_writer(fd)
-            except ValueError:  # pragma: no cover
+            except ValueError:
                 return
-        if not data:
+        if not data:  # pragma: no cover
             return
         try:
             n = self._socket.sendto(data, addr)

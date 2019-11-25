@@ -10,6 +10,7 @@ class Resource(object):
     """
     The Resource class. Represents the base class for all resources.
     """
+
     def __init__(self, name, visible=True, observable=True, allow_children=None):
         """
         Initialize a new Resource.
@@ -46,8 +47,6 @@ class Resource(object):
         self._etag = None
 
         self._location_query = []
-
-        self._max_age = None
 
         self._deleted = False
 
@@ -129,7 +128,7 @@ class Resource(object):
         self._etag = etag
 
     @property
-    def location_query(self) ->List[str]:
+    def location_query(self) -> List[str]:
         """
         Get the Location-Query of a resource.
 
@@ -155,24 +154,6 @@ class Resource(object):
         self._location_query = []
 
     @property
-    def max_age(self) -> int:
-        """
-        Get the Max-Age.
-
-        :return: the Max-Age
-        """
-        return self._max_age
-
-    @max_age.setter
-    def max_age(self, ma: int):
-        """
-        Set the Max-Age.
-
-        :param ma: the Max-Age
-        """
-        self._max_age = ma
-
-    @property
     def attributes(self) -> dict:
         """
         Get the CoRE Link Format attribute of the resource.
@@ -192,7 +173,7 @@ class Resource(object):
         self._attributes = att
 
     @property
-    def visible(self) ->bool:
+    def visible(self) -> bool:
         """
         Get if the resource is visible.
 
@@ -201,7 +182,7 @@ class Resource(object):
         return self._visible
 
     @property
-    def observable(self) ->bool:
+    def observable(self) -> bool:
         """
         Get if the resource is observable.
 
@@ -219,7 +200,7 @@ class Resource(object):
         return self._allow_children
 
     @property
-    def observe_count(self) ->int:
+    def observe_count(self) -> int:
         """
         Get the Observe counter.
 
@@ -250,7 +231,7 @@ class Resource(object):
         self._content_type = v
 
     @property
-    def core_ct(self) -> str:
+    def core_ct(self) -> str:  # pragma: no cover
         """
         Get the CoRE Link Format ct attribute of the resource.
 
@@ -267,7 +248,8 @@ class Resource(object):
         return value
 
     @core_ct.setter
-    def core_ct(self, lst: Union[None, str, defines.ContentType, List[str], List[defines.ContentType]]):
+    def core_ct(self, lst: Union[None, str, defines.ContentType, List[str],
+                                 List[defines.ContentType]]):  # pragma: no cover
         """
         Set the CoRE Link Format ct attribute of the resource.
 
@@ -284,7 +266,7 @@ class Resource(object):
                 for ct in lst:
                     self.add_content_type(ct)
 
-    def add_content_type(self, ct: Union[str, defines.ContentType]):
+    def add_content_type(self, ct: Union[str, defines.ContentType]):  # pragma: no cover
         """
         Add a CoRE Link Format ct attribute to the resource.
 
@@ -299,7 +281,7 @@ class Resource(object):
         self._attributes["ct"] = lst
 
     @property
-    def core_rt(self) -> str:
+    def core_rt(self) -> str:  # pragma: no cover
         """
         Get the CoRE Link Format rt attribute of the resource.
 
@@ -314,7 +296,7 @@ class Resource(object):
         return value
 
     @core_rt.setter
-    def core_rt(self, rt: str):
+    def core_rt(self, rt: str):  # pragma: no cover
         """
         Set the CoRE Link Format rt attribute of the resource.
 
@@ -325,7 +307,7 @@ class Resource(object):
         self._attributes["rt"] = rt
 
     @property
-    def core_if(self) -> str:
+    def core_if(self) -> str:  # pragma: no cover
         """
         Get the CoRE Link Format if attribute of the resource.
 
@@ -340,7 +322,7 @@ class Resource(object):
         return value
 
     @core_if.setter
-    def core_if(self, ift: str):
+    def core_if(self, ift: str):  # pragma: no cover
         """
         Set the CoRE Link Format if attribute of the resource.
 
@@ -351,7 +333,7 @@ class Resource(object):
         self._attributes["if"] = ift
 
     @property
-    def size(self) -> str:
+    def size(self) -> str:  # pragma: no cover
         """
         Get the CoRE Link Format sz attribute of the resource.
 
@@ -366,7 +348,7 @@ class Resource(object):
         return value
 
     @size.setter
-    def size(self, ift: str):
+    def size(self, ift: str):  # pragma: no cover
         """
         Set the CoRE Link Format sz attribute of the resource.
 
@@ -377,7 +359,7 @@ class Resource(object):
         self._attributes["sz"] = ift
 
     @property
-    def core_obs(self) -> str:
+    def core_obs(self) -> str:  # pragma: no cover
         """
         Get the CoRE Link Format obs attribute of the resource.
 
@@ -409,7 +391,7 @@ class Resource(object):
         self._payload.payload = p
 
     async def handle_get(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
-                                                                                  Callable]:
+                                                                                  Callable]:  # pragma: no cover
         """
         Method to be redefined to render a GET request on the resource.
 
@@ -420,7 +402,7 @@ class Resource(object):
         raise NotImplementedError
 
     async def handle_put(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
-                                                                                  Callable]:
+                                                                                  Callable]:  # pragma: no cover
         """
         Method to be redefined to render a PUTT request on the resource.
 
@@ -431,7 +413,7 @@ class Resource(object):
         raise NotImplementedError
 
     async def handle_post(self, request: "Request", response: "Response") -> Union[Tuple["Resource", "Response"],
-                                                                                  Callable]:
+                                                                                   Callable]:  # pragma: no cover
         """
         Method to be redefined to render a POST request on the resource.
 
@@ -441,7 +423,8 @@ class Resource(object):
         """
         raise NotImplementedError
 
-    async def handle_delete(self, request: "Request", response: "Response") -> Union[Tuple[bool, "Response"], Callable]:
+    async def handle_delete(self, request: "Request", response: "Response") -> Union[Tuple[bool, "Response"],
+                                                                                     Callable]:  # pragma: no cover
         """
         Method to be redefined to render a DELETE request on the resource.
 

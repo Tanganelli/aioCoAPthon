@@ -1,5 +1,3 @@
-from typing import Union, Tuple, Callable
-
 from resources.resource import Resource
 
 
@@ -83,4 +81,5 @@ class LinkResource(Resource):
     def __init__(self, name="LinkResource"):
         super().__init__(name)
         self.payload = ""
+
 

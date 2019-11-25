@@ -11,7 +11,7 @@ from tests.pugtest_observe_client import PlugtestObserveClientClass
 __author__ = 'Giacomo Tanganelli'
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     tests = PlugtestCoreClass()
     tests.main()
     tests = PlugtestLinkClass()
