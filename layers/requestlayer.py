@@ -1,10 +1,10 @@
 import logging
 
-from ..utilities import defines, utils
-from ..utilities.transaction import Transaction
-from ..layers.resourcelayer import ResourceLayer
-from ..messages.response import Response
-from ..resources.resource import Resource
+from utilities import defines, utils
+from utilities.transaction import Transaction
+from layers.resourcelayer import ResourceLayer
+from messages.response import Response
+from resources.resource import Resource
 
 __author__ = 'Giacomo Tanganelli'
 

@@ -4,12 +4,12 @@ import struct
 
 from typing import Tuple, List, Union, Optional
 
-from ..messages.message import Message
-from ..messages.response import Response
-from ..messages.request import Request
-from ..utilities import errors, defines
-from ..messages.options import Option
-from ..utilities.defines import OptionRegistry
+from messages.message import Message
+from messages.response import Response
+from messages.request import Request
+from utilities import errors, defines
+from messages.options import Option
+from utilities.defines import OptionRegistry
 
 __author__ = 'Giacomo Tanganelli'
 

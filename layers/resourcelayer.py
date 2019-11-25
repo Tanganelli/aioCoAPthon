@@ -4,11 +4,11 @@ import logging
 import concurrent.futures
 from typing import Callable, List
 
-from ..utilities import errors, defines
-from ..messages.response import Response
-from ..messages.request import Request
-from ..resources.resource import Resource
-from ..utilities.transaction import Transaction
+from utilities import errors, defines
+from messages.response import Response
+from messages.request import Request
+from resources.resource import Resource
+from utilities.transaction import Transaction
 
 __author__ = 'Giacomo Tanganelli'
 

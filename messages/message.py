@@ -3,7 +3,7 @@ import ipaddress
 from typing import Optional, Union, List, Tuple
 
 from .options import Option
-from ..utilities import errors, defines, utils
+from utilities import errors, defines, utils
 
 __author__ = 'Giacomo Tanganelli'
 

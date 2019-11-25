@@ -1,8 +1,8 @@
 from typing import Optional, List, Union
 
-from ..utilities import errors, defines
-from ..messages.message import Message
-from ..messages.options import Option
+from utilities import errors, defines
+from messages.message import Message
+from messages.options import Option
 
 __author__ = 'Giacomo Tanganelli'
 

@@ -5,12 +5,12 @@ import sys
 import asyncio
 import logging.config
 
-from .server.coap_server import CoAPServer
-from .utilities import defines
-from .utilities import utils
-from .messages.request import Request
-from .messages.response import Response
-from .resources.resource import Resource
+from server.coap_server import CoAPServer
+from utilities import defines
+from utilities import utils
+from messages.request import Request
+from messages.response import Response
+from resources.resource import Resource
 
 logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
 logger = logging.getLogger(__name__)

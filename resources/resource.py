@@ -1,6 +1,6 @@
 from typing import Optional, Union, List, Tuple, Callable
 
-from ..utilities import defines, utils
+from utilities import defines, utils
 
 __author__ = 'Giacomo Tanganelli'
 

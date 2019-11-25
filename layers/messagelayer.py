@@ -5,11 +5,11 @@ import cachetools as cachetools
 import logging
 import random
 
-from ..utilities import errors, defines, utils
-from ..utilities.transaction import Transaction
-from ..messages.message import Message
-from ..messages.response import Response
-from ..messages.request import Request
+from utilities import errors, defines, utils
+from utilities.transaction import Transaction
+from messages.message import Message
+from messages.response import Response
+from messages.request import Request
 
 logger = logging.getLogger(__name__)
 

@@ -1,4 +1,4 @@
-from ..utilities import defines
+from utilities import defines
 
 
 class CoAPException(Exception):

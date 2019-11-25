@@ -3,11 +3,11 @@ import logging
 import random
 from typing import Union
 
-from ..messages.message import Message
-from ..messages.request import Request
-from ..protocol.coap_protocol import CoAPProtocol
-from ..utilities import defines, utils
-from ..utilities.helper import Helper
+from messages.message import Message
+from messages.request import Request
+from protocol.coap_protocol import CoAPProtocol
+from utilities import defines, utils
+from utilities.helper import Helper
 
 __author__ = 'Giacomo Tanganelli'
 

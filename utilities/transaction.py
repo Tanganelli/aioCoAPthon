@@ -3,10 +3,10 @@ import time
 import asyncio
 from typing import Union
 
-from ..messages.message import Message
-from ..messages.request import Request
-from ..messages.response import Response
-from ..resources.resource import Resource
+from messages.message import Message
+from messages.request import Request
+from messages.response import Response
+from resources.resource import Resource
 
 __author__ = 'Giacomo Tanganelli'
 
