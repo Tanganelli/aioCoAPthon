@@ -107,7 +107,7 @@ class ResourceLayer(object):
                     transaction.response.payload = None
                 else:
                     transaction.response.code = defines.Code.CONTENT
-
+            transaction.response.completed = True
             return transaction
 
         except NotImplementedError:  # pragma: no cover

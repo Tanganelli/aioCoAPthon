@@ -145,8 +145,9 @@ class CoAPProtocol(object):
     async def receive_message(self):
         data, addr = await self.recvfrom()
         try:
-            transaction, msg_type = await self._handle_datagram(data, addr)
-            await self.handle_message(transaction, msg_type)
+            self._loop.create_task(self._handler(data, addr))
+            # transaction, msg_type = await self._handle_datagram(data, addr)
+            # self._loop.create_task(self.handle_message(transaction, msg_type))
         except errors.PongException as e:
             if e.message is not None:
                 # check if it is ping
@@ -246,22 +247,13 @@ class CoAPProtocol(object):
         #             if e.transaction.separate_task is not None:
         #                 e.transaction.separate_task.cancel()
         #                 del e.transaction.separate_task
-        #             rst = Message()
-        #             rst.destination = addr
-        #             rst.type = defines.Type.RST
-        #             rst.code = e.response_code
         #
-        #             if e.related == defines.MessageRelated.REQUEST:
-        #                 rst.mid = e.transaction.request.mid
-        #                 rst.token = e.transaction.request.token
-        #             elif e.related == defines.MessageRelated.RESPONSE:
-        #                 rst.mid = e.transaction.response.mid
-        #                 rst.token = e.transaction.response.token
-        #
-        #             rst.payload = e.msg
-        #             await self._send_datagram(rst)
-        #             if e.exception is not None:
-        #                 logger.exception(e)
+        #             e.transaction.response = Response()
+        #             e.transaction.response.destination = addr
+        #             e.transaction.response.code = e.response_code
+        #             e.transaction.response.payload = e.msg
+        #             transaction = await self._messageLayer.send_response(e.transaction)
+        #             await self._send_datagram(transaction.response)
         #             logger.error(e.msg)
         #         elif isinstance(e, errors.ObserveError):
         #             if e.transaction is not None:
@@ -278,8 +270,74 @@ class CoAPProtocol(object):
         #         elif isinstance(e, Exception):
         #             logger.exception(e)
 
+    async def _handler(self, data, addr):
+        try:
+            transaction, msg_type = await self._handle_datagram(data, addr)
+            await self.handle_message(transaction, msg_type)
+        except errors.PongException as e:
+            if e.message is not None:
+                # check if it is ping
+                if e.message.type == defines.Type.CON:
+                    rst = Message()
+                    rst.destination = addr
+                    rst.type = defines.Type.RST
+                    rst.mid = e.message.mid
+                    await self._send_datagram(rst)
+        except errors.ProtocolError as e:
+            '''
+               From RFC 7252, Section 4.2
+               reject the message if the recipient
+               lacks context to process the message properly, including situations
+               where the message is Empty, uses a code with a reserved class (1, 6,
+               or 7), or has a message format error.  Rejecting a Confirmable
+               message is effected by sending a matching Reset message and otherwise
+               ignoring it.
+
+               From RFC 7252, Section 4.3
+               A recipient MUST reject the message
+               if it lacks context to process the message properly, including the
+               case where the message is Empty, uses a code with a reserved class
+               (1, 6, or 7), or has a message format error.  Rejecting a Non-
+               confirmable message MAY involve sending a matching Reset message
+            '''
+            rst = Message()
+            rst.destination = addr
+            rst.type = defines.Type.RST
+            rst.mid = e.mid
+            rst.payload = e.msg
+            await self._send_datagram(rst)
+        except errors.InternalError as e:
+            if e.transaction.separate_task is not None:
+                e.transaction.separate_task.cancel()
+                del e.transaction.separate_task
+
+            e.transaction.response = Response()
+            e.transaction.response.destination = addr
+            e.transaction.response.code = e.response_code
+            e.transaction.response.payload = e.msg
+            transaction = await self._messageLayer.send_response(e.transaction)
+            await self._send_datagram(transaction.response)
+            logger.error(e.msg)
+        except errors.ObserveError as e:
+            if e.transaction is not None:
+                if e.transaction.separate_task is not None:
+                    e.transaction.separate_task.cancel()
+                    del e.transaction.separate_task
+                e.transaction.response.payload = e.msg
+                e.transaction.response.clear_options()
+                e.transaction.response.type = defines.Type.CON
+                e.transaction.response.code = e.response_code
+                e.transaction = await self._messageLayer.send_response(e.transaction)
+                await self._send_datagram(e.transaction.response)
+                logger.error("Observe Error")
+        except errors.CoAPException as e:
+            logger.error(e.msg)
+        except Exception as e:
+            logger.exception(e)
+
     async def _handle_datagram(self, data, addr):
         message = await self._serializer.deserialize(data, source=addr)
+        logger.debug(f"handle_datagram: {message}")
         if isinstance(message, Request):
             if message.type == defines.Type.RST or message.type == defines.Type.ACK:  # pragma: no cover
                 raise errors.ProtocolError("Request cannot be carried in RST or ACK messages",
@@ -307,6 +365,7 @@ class CoAPProtocol(object):
             return None
 
     async def handle_message(self, transaction, message):
+        logger.debug(f"handle_message: {message}")
         if isinstance(message, Response):
             if transaction.retransmit_task is not None:
                 transaction.retransmit_stop = True
@@ -323,8 +382,8 @@ class CoAPProtocol(object):
 
         elif isinstance(message, Request):
             if transaction.request.duplicated:
-                logger.debug("Duplicate request")
-                if transaction.response is None:
+                logger.warning("Duplicate request")
+                if transaction.response.completed is False:
                     transaction.send_separate.set()
                 else:
                     if transaction.separate_task is not None:
@@ -445,7 +504,7 @@ class CoAPProtocol(object):
         try:
             await transaction.send_separate.wait()
             if not transaction.request.acknowledged and transaction.request.type == defines.Type.CON:
-                logger.debug("send ack")
+                logger.debug("send empty ack")
                 transaction, ack = await self._messageLayer.send_empty(transaction, defines.MessageRelated.REQUEST)
                 await self._send_datagram(ack)
         except asyncio.CancelledError:  # pragma: no cover

@@ -27,6 +27,7 @@ class Message(object):
         self._code = defines.Code.EMPTY
         self._acknowledged = None
         self._rejected = None
+        self._completed = False
         self._timeouts = None
         self._cancelled = None
         self._duplicated = None
@@ -299,6 +300,14 @@ class Message(object):
             self._timeouts = False
             self._rejected = False
             self._cancelled = False
+
+    @property
+    def completed(self) -> bool:
+        return self._completed
+
+    @completed.setter
+    def completed(self, value: bool):
+        self._completed = value
 
     @property
     def rejected(self) -> bool:

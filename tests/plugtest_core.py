@@ -1515,6 +1515,83 @@ class PlugtestCoreClass(unittest.TestCase):
         req.destination = self.server_address
         req.token = utils.generate_random_hex(2)
 
+        token = req.token
+        expected = Response()
+        expected.type = defines.Type.ACK
+        expected.mid = req.mid
+        expected.code = defines.Code.EMPTY
+        expected.source = "127.0.0.1", 5683
+
+        transaction = await client.send_request(req)
+
+        req = Request()
+        req.code = defines.Code.GET
+        req.uri_path = "/test"
+        req.type = defines.Type.CON
+        req.mid = random.randint(1, 1000)
+        req.destination = self.server_address
+        req.token = utils.generate_random_hex(2)
+        transaction2 = await client.send_request(req)
+
+        expected2 = Response()
+        expected2.type = defines.Type.ACK
+        expected2.mid = req.mid
+        expected2.code = defines.Code.CONTENT
+        expected2.source = "127.0.0.1", 5683
+        expected2.payload = "Test"
+        expected2.token = req.token
+        expected2.content_type = 0
+
+        ret = await client.receive_response(transaction2, 60)
+        if ret != expected2:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected2))
+            self.assertEqual(ret, expected2)
+        else:
+            print("Received Test")
+
+        ret = await client.receive_response(transaction, 60)
+
+        if ret != expected:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+            self.assertEqual(ret, expected)
+
+        expected = Response()
+        expected.type = defines.Type.CON
+        expected.mid = self.server_mid + 2
+        expected.code = defines.Code.CONTENT
+        expected.payload = "Long Time"
+        expected.token = token
+        expected.source = "127.0.0.1", 5683
+
+        transaction.response = None
+        ret = await client.receive_response(transaction, 10)
+
+        if ret == expected:
+            print("PASS")
+        else:
+            print("Received: {0}".format(ret))
+            print("Expected: {0}".format(expected))
+
+        self.assertEqual(ret, expected)
+
+        self.stop_client_server(client, server)
+
+    @async_test
+    async def test_td_coap_core_38(self):
+        client, server = await self.start_client_server()
+        print("TD_COAP_CORE_38")
+        path = "/slow"
+        req = Request()
+        req.code = defines.Code.GET
+        req.uri_path = path
+        req.type = defines.Type.CON
+        req.mid = random.randint(1, 1000)
+        req.destination = self.server_address
+        req.token = utils.generate_random_hex(2)
+
+        token = req.token
         expected = Response()
         expected.type = defines.Type.ACK
         expected.mid = req.mid
@@ -1523,7 +1600,7 @@ class PlugtestCoreClass(unittest.TestCase):
 
         transaction = await client.send_request(req)
         transaction = await client.send_request(req)
-        ret = await client.receive_response(transaction, 10)
+        ret = await client.receive_response(transaction, 60)
 
         if ret != expected:
             print("Received: {0}".format(ret))
@@ -1535,11 +1612,11 @@ class PlugtestCoreClass(unittest.TestCase):
         expected.mid = self.server_mid + 1
         expected.code = defines.Code.CONTENT
         expected.payload = "Long Time"
-        expected.token = req.token
+        expected.token = token
         expected.source = "127.0.0.1", 5683
 
         transaction.response = None
-        ret = await client.receive_response(transaction, 10)
+        ret = await client.receive_response(transaction, 60)
 
         if ret == expected:
             print("PASS")

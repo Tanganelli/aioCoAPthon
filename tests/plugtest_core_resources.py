@@ -1,3 +1,4 @@
+import asyncio
 from typing import Union, Tuple, Callable
 
 from utilities import defines
@@ -204,3 +205,9 @@ class SlowResource(Resource):
         time.sleep(10)
         response.payload = self.payload
         return self, response
+
+    # async def handle_get(self, request: "Request", response: "Response"):
+    #     await asyncio.sleep(10)
+    #     response.payload = self.payload
+    #     return self, response
+
