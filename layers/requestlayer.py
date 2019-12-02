@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 from utilities import defines, utils
 from utilities.transaction import Transaction
@@ -62,7 +63,7 @@ class RequestLayer(object):
     #         del self._root[path]
     #     return True
     #
-    def get_resources(self, prefix=None):
+    def get_resources_path(self, prefix=None):
         lst = self._root.dump()
         if prefix is None:
             return lst
@@ -73,6 +74,13 @@ class RequestLayer(object):
                 if uri.startswith(prefix):
                     ret.append(uri)
             return ret
+
+    def get_resources(self, prefix=None) -> List[Resource]:
+        lst = self.get_resources_path(prefix)
+        ret = []
+        for p in lst:
+            ret.append(self._root[p])
+        return ret
 
     async def receive_request(self, transaction: Transaction) -> Transaction:
         """

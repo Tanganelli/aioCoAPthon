@@ -54,7 +54,7 @@ class CoAPServer(CoAPProtocol):
         return self._requestLayer.remove_resource(path)
 
     def get_resources(self, prefix: str = None) -> List[str]:
-        return self._requestLayer.get_resources(prefix)
+        return self._requestLayer.get_resources_path(prefix)
 
     async def _notify(self):
         while not self._stop.is_set():
