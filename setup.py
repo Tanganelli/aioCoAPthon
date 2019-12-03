@@ -3,7 +3,8 @@ from setuptools import setup
 setup(
     name='aioCoAPthon',
     version='1.0',
-    packages=['tests', 'client', 'layers', 'server', 'messages', 'protocol', 'resources', 'utilities'],
+    packages=['aiocoapthon.tests', 'aiocoapthon.client', 'aiocoapthon.layers', 'aiocoapthon.server',
+              'aiocoapthon.messages', 'aiocoapthon.protocol', 'aiocoapthon.resources', 'aiocoapthon.utilities'],
     url='https://github.com/Tanganelli/aioCoAPthon',
     license='MIT',
     author='Giacomo Tanganelli',
