@@ -5,12 +5,11 @@ import sys
 import asyncio
 import logging.config
 
-from server.coap_server import CoAPServer
-from utilities import defines
-from utilities import utils
-from messages.request import Request
-from messages.response import Response
-from resources.resource import Resource
+from aiocoapthon.server.coap_server import CoAPServer
+from aiocoapthon.utilities import defines, utils
+from aiocoapthon.messages.request import Request
+from aiocoapthon.messages.response import Response
+from aiocoapthon.resources.resource import Resource
 
 logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
 logger = logging.getLogger(__name__)

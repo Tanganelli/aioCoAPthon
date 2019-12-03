@@ -1,7 +1,7 @@
 import asyncio
 import logging.config
 
-from client.coap_client import CoAPClient
+from aiocoapthon.client.coap_client import CoAPClient
 
 __author__ = 'Giacomo Tanganelli'
 
